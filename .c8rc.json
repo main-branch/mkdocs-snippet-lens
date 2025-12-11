@@ -1,0 +1,28 @@
+{
+  "all": true,
+  "include": [
+    "out/extension.js",
+    "out/**/*.js"
+  ],
+  "exclude": [
+    "out/test/**",
+    "out/**/*.test.js",
+    "dist/**",
+    "node_modules/**",
+    ".vscode-test/**",
+    "**/*.d.ts"
+  ],
+  "reporter": [
+    "text",
+    "text-summary",
+    "lcov"
+  ],
+  "check-coverage": true,
+  "lines": 100,
+  "statements": 100,
+  "functions": 100,
+  "branches": 100,
+  "per-file": true,
+  "skip-full": false,
+  "report-dir": "./coverage"
+}
