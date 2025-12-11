@@ -1,71 +1,49 @@
-# mkdocs-snippet-lens README
+# MkDocs Snippet Lens
 
-This is the README for your extension "mkdocs-snippet-lens". After writing up a brief description, we recommend including the following sections.
+[![CI](https://github.com/main-branch/mkdocs-snippet-lens/actions/workflows/ci.yml/badge.svg)](https://github.com/main-branch/mkdocs-snippet-lens/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+A Visual Studio Code extension that provides inline previews, clickable links, and
+diagnostics for MkDocs `--8<--` snippet references in Markdown files.
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+- **Inline Previews**: See snippet content directly in your editor without opening the
+  file
+- **Clickable Links**: Navigate to snippet files with a single click
+- **Error Diagnostics**: Get immediate feedback when snippet files are missing
+- **Hover Previews**: View full snippet content on hover
 
-For example if there is an image subfolder under your extension project workspace:
+## Installation
 
-\!\[feature X\]\(images/feature-x.png\)
-
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
-
-## Requirements
-
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+Install from the VS Code Marketplace or build from source.
 
 ## Extension Settings
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
-
-For example:
-
 This extension contributes the following settings:
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+- `mkdocsSnippetLens.basePath`: Base directory for resolving snippet paths (relative to
+  workspace root)
+- `mkdocsSnippetLens.previewMaxLines`: Maximum number of lines to show in inline preview
+  (default: 20)
+- `mkdocsSnippetLens.previewMaxChars`: Maximum number of characters to show in inline
+  preview (default: 200)
+
+## Commands
+
+- `MkDocs Snippet Lens: Toggle All Previews`: Toggle inline previews on/off
 
 ## Known Issues
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+See the
+[issue tracker](https://github.com/main-branch/mkdocs-snippet-lens/issues) for known
+issues.
 
-## Release Notes
+## Contributing
 
-Users appreciate release notes as you update your extension.
+Contributions are welcome! Please see the repository for development setup and
+guidelines.
 
-### 1.0.0
+## License
 
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
----
-
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+This extension is licensed under the [MIT License](LICENSE).

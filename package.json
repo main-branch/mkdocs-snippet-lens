@@ -4,6 +4,14 @@
   "description": "Preview and open MkDocs --8<-- snippets directly in VS Code.",
   "version": "0.0.1",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/main-branch/mkdocs-snippet-lens.git"
+  },
+  "bugs": {
+    "url": "https://github.com/main-branch/mkdocs-snippet-lens/issues"
+  },
+  "homepage": "https://github.com/main-branch/mkdocs-snippet-lens#readme",
   "engines": {
     "vscode": "^1.106.1"
   },
