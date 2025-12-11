@@ -46,6 +46,24 @@ describe('SnippetLocator', () => {
 			assert.strictEqual(locations[1].snippet.path, 'file2.txt');
 		});
 
+		it('should locate duplicate snippets with same path', () => {
+			const locator = new SnippetLocator();
+			const text = '--8<-- "file.txt"\nSome text\n--8<-- "file.txt"';
+			const snippets = [{ path: 'file.txt' }, { path: 'file.txt' }];
+
+			const locations = locator.locateSnippets(text, snippets);
+
+			assert.strictEqual(locations.length, 2);
+			// First occurrence
+			assert.strictEqual(text.substring(locations[0].startOffset, locations[0].endOffset), 'file.txt');
+			assert.strictEqual(locations[0].startOffset, 8); // After '--8<-- "'
+			assert.strictEqual(locations[0].endOffset, 16); // 8 + 8 (length of path)
+			// Second occurrence
+			assert.strictEqual(text.substring(locations[1].startOffset, locations[1].endOffset), 'file.txt');
+			assert.strictEqual(locations[1].startOffset, 36); // After second '--8<-- "'
+			assert.strictEqual(locations[1].endOffset, 44); // 36 + 8 (length of path)
+		});
+
 		it('should return empty array when snippet not found in text', () => {
 			const locator = new SnippetLocator();
 			const text = 'No snippets here';

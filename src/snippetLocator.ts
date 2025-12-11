@@ -22,16 +22,40 @@ export class SnippetLocator {
 	 */
 	locateSnippets(text: string, snippets: SnippetInfo[]): SnippetLocation[] {
 		const locations: SnippetLocation[] = [];
+		const usedPositions = new Set<number>();
 
 		for (const snippet of snippets) {
 			// Try double quotes first
 			const doubleQuotePattern = `--8<-- "${snippet.path}"`;
-			let index = text.indexOf(doubleQuotePattern);
+			const singleQuotePattern = `--8<-- '${snippet.path}'`;
 
-			if (index === -1) {
-				// Try single quotes
-				const singleQuotePattern = `--8<-- '${snippet.path}'`;
-				index = text.indexOf(singleQuotePattern);
+			let index = -1;
+			let searchStart = 0;
+
+			// Find the next unused occurrence
+			while (true) {
+				// Try double quotes
+				let foundIndex = text.indexOf(doubleQuotePattern, searchStart);
+
+				if (foundIndex === -1) {
+					// Try single quotes
+					foundIndex = text.indexOf(singleQuotePattern, searchStart);
+				}
+
+				if (foundIndex === -1) {
+					// No more occurrences found
+					break;
+				}
+
+				if (!usedPositions.has(foundIndex)) {
+					// Found an unused occurrence
+					index = foundIndex;
+					usedPositions.add(foundIndex);
+					break;
+				}
+
+				// This position was already used, search from next position
+				searchStart = foundIndex + 1;
 			}
 
 			if (index !== -1) {
