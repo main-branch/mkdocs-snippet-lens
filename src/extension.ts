@@ -5,6 +5,7 @@ import { SnippetLocator } from './snippetLocator';
 import { SnippetLinkProvider } from './snippetLinkProvider';
 import { PreviewManager } from './previewManager';
 import { SnippetHoverProvider } from './snippetHoverProvider';
+import { DiagnosticManager } from './diagnosticManager';
 
 /**
  * Activates the mkdocs-snippet-lens extension
@@ -14,6 +15,9 @@ export function activate(context: vscode.ExtensionContext) {
 	const detector = new SnippetDetector();
 	const resolver = new PathResolver();
 	const locator = new SnippetLocator();
+
+	// Create diagnostic manager for error reporting
+	const diagnosticManager = new DiagnosticManager(detector, resolver, locator);
 
 	// Register document link provider for markdown files
 	const linkProvider = new SnippetLinkProvider(detector, resolver, locator);
@@ -32,24 +36,29 @@ export function activate(context: vscode.ExtensionContext) {
 		hoverProvider
 	);
 
-	// Update previews when document changes
+	// Update previews and diagnostics when document changes
 	const changeDisposable = vscode.workspace.onDidChangeTextDocument(event => {
 		if (event.document.languageId === 'markdown') {
 			previewManager.updatePreviews(event.document);
+			diagnosticManager.updateDiagnostics(event.document);
 		}
 	});
 
-	// Update previews when active editor changes
+	// Update previews and diagnostics when active editor changes
 	const editorDisposable = vscode.window.onDidChangeActiveTextEditor(editor => {
 		if (editor && editor.document.languageId === 'markdown') {
 			previewManager.updatePreviews(editor.document);
+			diagnosticManager.updateDiagnostics(editor.document);
 		}
 	});
 
-	// Initial preview for currently open markdown files
+	// Initial preview and diagnostics for currently open markdown files
 	vscode.window.visibleTextEditors
 		.filter(editor => editor.document.languageId === 'markdown')
-		.forEach(editor => previewManager.updatePreviews(editor.document));
+		.forEach(editor => {
+			previewManager.updatePreviews(editor.document);
+			diagnosticManager.updateDiagnostics(editor.document);
+		});
 
 	// Register toggle command
 	const toggleCommand = vscode.commands.registerCommand(
@@ -65,6 +74,7 @@ export function activate(context: vscode.ExtensionContext) {
 		linkProviderDisposable,
 		previewManager,
 		hoverDisposable,
+		diagnosticManager,
 		changeDisposable,
 		editorDisposable,
 		toggleCommand

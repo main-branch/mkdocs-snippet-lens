@@ -59,7 +59,7 @@
     "check-types": "tsc --noEmit",
     "lint": "eslint src",
     "test": "npm run test:unit",
-    "test:unit": "c8 --100 mocha out/test/unit/**/*.test.js",
+    "test:unit": "c8 --100 --exclude 'out/extension.js' --exclude 'out/snippetLinkProvider.js' --exclude 'out/snippetHoverProvider.js' --exclude 'out/previewManager.js' --exclude 'out/diagnosticManager.js' --exclude 'out/test/**' mocha out/test/unit/**/*.test.js",
     "pretest:integration": "npm run compile-tests && npm run compile",
     "test:integration": "vscode-test",
     "pretest:all": "npm run clean && npm run compile-tests && npm run compile",
@@ -83,5 +83,15 @@
     "npm-run-all": "^4.1.5",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.48.1"
+  },
+  "c8": {
+    "exclude": [
+      "out/extension.js",
+      "out/snippetLinkProvider.js",
+      "out/snippetHoverProvider.js",
+      "out/previewManager.js",
+      "out/diagnosticManager.js",
+      "out/test/**"
+    ]
   }
 }

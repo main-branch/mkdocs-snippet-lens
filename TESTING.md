@@ -18,6 +18,7 @@ These modules contain all core logic and have ZERO VS Code dependencies:
 - `linkCreation.ts` - Creates link information from locations and paths
 - `previewContentCreator.ts` - Creates formatted preview content for snippets
 - `inlineFormatter.ts` - Converts newlines to inline display symbols
+- `diagnosticCreator.ts` - Creates diagnostic information for snippet errors
 
 All business logic is tested in `src/test/unit/**/*.test.ts` using plain
 Mocha (no VS Code runtime), with coverage tracked by c8.
@@ -29,7 +30,11 @@ Code API:
 
 - `snippetLinkProvider.ts` - Implements `vscode.DocumentLinkProvider` by
   delegating to layer 1 modules
+- `snippetHoverProvider.ts` - Implements `vscode.HoverProvider` by delegating
+  to layer 1 modules
 - `previewManager.ts` - Manages ghost text decorations by delegating to layer 1
+  modules
+- `diagnosticManager.ts` - Manages diagnostic errors by delegating to layer 1
   modules
 - `extension.ts` - Extension activation and registration boilerplate
 
