@@ -8,6 +8,7 @@
     "out/test/**",
     "out/**/*.test.js",
     "out/extension.js",
+    "out/snippetLinkProvider.js",
     "dist/**",
     "node_modules/**",
     ".vscode-test/**",

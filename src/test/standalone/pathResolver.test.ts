@@ -9,7 +9,7 @@ describe('PathResolver', () => {
 			const resolver = new PathResolver();
 			const absolutePath = '/absolute/path/to/file.txt';
 			const result = resolver.resolve(absolutePath, '/some/markdown/file.md', '/workspace', '');
-			
+
 			assert.strictEqual(result, absolutePath);
 		});
 
@@ -18,7 +18,7 @@ describe('PathResolver', () => {
 			const snippetPath = 'snippet.txt';
 			const markdownFile = '/workspace/docs/guide.md';
 			const result = resolver.resolve(snippetPath, markdownFile, '/workspace', '');
-			
+
 			assert.strictEqual(result, '/workspace/docs/snippet.txt');
 		});
 
@@ -27,7 +27,7 @@ describe('PathResolver', () => {
 			const snippetPath = 'snippet.txt';
 			const markdownFile = '/workspace/docs/guide.md';
 			const result = resolver.resolve(snippetPath, markdownFile, '/workspace', '');
-			
+
 			assert.strictEqual(result, '/workspace/snippet.txt');
 		});
 
@@ -36,7 +36,7 @@ describe('PathResolver', () => {
 			const snippetPath = 'snippet.txt';
 			const markdownFile = '/workspace/docs/guide.md';
 			const result = resolver.resolve(snippetPath, markdownFile, '/workspace', '/snippets');
-			
+
 			assert.strictEqual(result, '/snippets/snippet.txt');
 		});
 
@@ -45,7 +45,7 @@ describe('PathResolver', () => {
 			const snippetPath = 'nonexistent.txt';
 			const markdownFile = '/workspace/docs/guide.md';
 			const result = resolver.resolve(snippetPath, markdownFile, '/workspace', '');
-			
+
 			assert.strictEqual(result, undefined);
 		});
 	});

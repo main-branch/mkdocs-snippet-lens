@@ -29,7 +29,7 @@ export class PathResolver {
 		if (path.isAbsolute(snippetPath)) {
 			return snippetPath;
 		}
-		
+
 		// 2. Try relative to markdown file's directory
 		const markdownDir = path.dirname(markdownFilePath);
 		const relativeToMarkdown = path.join(markdownDir, snippetPath);
