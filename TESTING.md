@@ -12,11 +12,11 @@ The project follows a layered testing strategy:
 
 These modules contain all core logic and have ZERO VS Code dependencies:
 
-- `snippetDetector.ts` - Detects MkDocs snippet syntax using regex  
+- `snippetDetector.ts` - Detects MkDocs snippet syntax using regex
 - `snippetLocator.ts` - Finds snippet positions in text
 - `pathResolver.ts` - Resolves file paths with precedence logic
 - `linkCreation.ts` - Creates link information from locations and paths
-- `contentFormatter.ts` - Formats snippet content with line truncation
+- `previewContentCreator.ts` - Creates formatted preview content for snippets
 - `inlineFormatter.ts` - Converts newlines to inline display symbols
 
 All business logic is tested in `src/test/unit/**/*.test.ts` using plain
