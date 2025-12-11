@@ -53,6 +53,8 @@ complexity and risk.
   - [Release Checklist](#release-checklist)
   - [Post-Release Activities](#post-release-activities)
 - [Development Standards](#development-standards)
+  - [Development Methodology](#development-methodology)
+    - [TDD Process (Mandatory)](#tdd-process-mandatory)
   - [Code Quality](#code-quality)
   - [Git Workflow](#git-workflow)
   - [Testing Strategy](#testing-strategy)
@@ -128,7 +130,7 @@ features to deliver value incrementally while managing complexity and risk.
 - Deliver working software early and often
 - Validate technical approaches before full implementation
 - Build foundation for future features without over-engineering
-- Maintain high quality (90%+ test coverage) throughout
+- Maintain high quality (100% test coverage required) throughout
 
 ---
 
@@ -156,7 +158,9 @@ technical foundation.
 - Users can click snippet references to open files
 - Users can see basic ghost text previews
 - Extension works on all three platforms (Windows, macOS, Linux)
-- Code coverage ≥ 80%
+- Code coverage == 100%
+- Tests fail if coverage < 100%
+- CI fails on insufficient coverage
 - No critical bugs
 
 ### Features In Scope
@@ -427,7 +431,8 @@ decorations.
 - ✅ Ghost text preview shows content (when toggled on)
 - ✅ File not found errors appear as diagnostics
 - ✅ Works on Windows, macOS, Linux
-- ✅ Test coverage ≥ 80%
+- ✅ Test coverage == 100%
+- ✅ Tests fail if coverage < 100%
 
 ---
 
@@ -442,7 +447,8 @@ decorations.
 - Named sections work correctly
 - Line ranges work correctly
 - Per-snippet toggles implemented
-- Test coverage ≥ 85%
+- Code coverage == 100%
+- Tests fail if coverage < 100%
 
 ### Features In Scope
 
@@ -627,7 +633,8 @@ handling.
 - Recursive snippets work without crashes
 - File changes trigger preview updates
 - All error conditions properly handled
-- Test coverage ≥ 90%
+- Code coverage == 100%
+- Tests fail if coverage < 100%
 
 ### Features In Scope
 
@@ -806,7 +813,8 @@ handling.
 
 **Week 12: Testing & Release**
 
-- [ ] Achieve 90% test coverage
+- [ ] Achieve 100% test coverage
+- [ ] Configure tests to fail if coverage < 100%
 - [ ] Cross-platform testing
 - [ ] Performance testing
 - [ ] Create v0.3.0 release
@@ -825,8 +833,9 @@ for marketplace publication.
 - All security requirements met
 - Performance targets achieved (< 50ms sync, < 200ms perceived)
 - Full documentation complete
-- Test coverage ≥ 90%
-- CI/CD pipeline operational
+- Code coverage == 100%
+- Tests fail if coverage < 100%
+- CI/CD pipeline operational (fails on coverage < 100%)
 - Published to VS Code Marketplace
 
 ### Features In Scope
@@ -1118,7 +1127,9 @@ Pre-1.0 versions (0.x.y):
 Before each release:
 
 - [ ] All planned features complete
-- [ ] Test coverage ≥ 90% (or ≥ 80% for MVP)
+- [ ] Test coverage == 100%
+- [ ] Tests configured to fail if coverage < 100%
+- [ ] CI configured to fail on insufficient coverage
 - [ ] All tests passing on all platforms
 - [ ] No known critical bugs
 - [ ] CHANGELOG updated
@@ -1140,12 +1151,32 @@ Before each release:
 
 ## Development Standards
 
+### Development Methodology
+
+**This project uses Test Driven Development (TDD).**
+
+#### TDD Process (Mandatory)
+
+All features must be developed using the Red-Green-Refactor cycle:
+
+1. **Write a failing test** - Write only enough test code to fail
+2. **Make it pass** - Write minimal implementation to pass the test
+3. **Refactor** - Improve code quality while keeping tests green
+4. **Repeat** - Continue with next test
+
+**Key Principles:**
+- Tests written BEFORE implementation
+- No code written without a failing test first
+- Highly iterative - many small cycles
+- No premature implementation or features
+- Tests drive the design
+
 ### Code Quality
 
 - **TypeScript:** Strict mode enabled
 - **Linting:** ESLint with recommended rules
 - **Formatting:** Prettier (or consistent manual formatting)
-- **Testing:** 90% coverage target (80% for MVP)
+- **Testing:** 100% coverage required, enforced by test runner and CI
 - **Documentation:** JSDoc for all public APIs
 
 ### Git Workflow
@@ -1157,10 +1188,18 @@ Before each release:
 
 ### Testing Strategy
 
-- **Unit tests:** 70-80% of test suite
-- **Integration tests:** 15-25% of test suite
-- **E2E tests:** 5-10% of test suite
+**All testing follows TDD methodology - tests written before implementation.**
+
+- **Unit tests:** 70-80% of test suite (written first, drive implementation)
+- **Integration tests:** 15-25% of test suite (written before integration code)
+- **E2E tests:** 5-10% of test suite (written before end-to-end features)
 - **Manual testing:** Before each release, all platforms
+- **Coverage requirement:** 100% across all test types
+- **Enforcement:** Tests must fail if coverage < 100%, CI must fail
+
+**TDD Workflow:**
+- Write failing test → Run test (verify RED) → Write minimal code → Run test (verify
+  GREEN) → Refactor → Repeat
 
 ### Performance Budgets
 
@@ -1198,7 +1237,9 @@ Refer to [RISKS.md](RISKS.md) for comprehensive risk assessment.
 
 ### Technical Metrics
 
-- Test coverage ≥ 90%
+- Test coverage == 100% (enforced)
+- Tests fail if coverage < 100%
+- CI fails on insufficient coverage
 - Performance targets met
 - Zero critical bugs in production
 - Clean security audit
