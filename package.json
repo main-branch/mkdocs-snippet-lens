@@ -1,6 +1,6 @@
 {
   "name": "mkdocs-snippet-lens",
-  "displayName": "mkdocs-snippet-lens",
+  "displayName": "MkDocs Snippet Lens",
   "description": "Preview and open MkDocs --8<-- snippets directly in VS Code.",
   "version": "0.0.5",
   "publisher": "main-branch",
