@@ -2,7 +2,7 @@
   "name": "mkdocs-snippet-lens",
   "displayName": "mkdocs-snippet-lens",
   "description": "Preview and open MkDocs --8<-- snippets directly in VS Code.",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "publisher": "main-branch",
   "icon": "icon.png",
   "license": "MIT",
