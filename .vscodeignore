@@ -1,5 +1,6 @@
 .vscode/**
 .vscode-test/**
+.vscode-test.mjs
 out/**
 node_modules/**
 src/**
@@ -7,8 +8,35 @@ src/**
 .yarnrc
 esbuild.js
 vsc-extension-quickstart.md
+package-lock.json
 **/tsconfig.json
 **/eslint.config.mjs
 **/*.map
 **/*.ts
 **/.vscode-test.*
+
+# Test and coverage configuration
+.c8rc.json
+coverage/**
+
+# Development documentation
+IMPLEMENTATION.md
+REQUIREMENTS.md
+RISKS.md
+TESTING.md
+CONTRIBUTING.md
+
+# Linting and formatting
+.markdownlint.yml
+.commitlintrc.yml
+
+# Release automation
+.release-please-config.json
+.release-please-manifest.json
+
+# CI/CD and git hooks
+.github/**
+.husky/**
+
+# Keep only one icon format (using icon.png per package.json)
+icon.svg
