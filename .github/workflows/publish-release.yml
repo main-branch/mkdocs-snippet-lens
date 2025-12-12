@@ -55,7 +55,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           TAG_NAME="${GITHUB_REF#refs/tags/}"
-          gh release upload "$TAG_NAME" *.vsix
+          gh release upload "$TAG_NAME" *.vsix --clobber
 
       - name: Publish to VS Code Marketplace
         env:
