@@ -3,6 +3,8 @@
   "displayName": "mkdocs-snippet-lens",
   "description": "Preview and open MkDocs --8<-- snippets directly in VS Code.",
   "version": "0.0.1",
+  "publisher": "main-branch",
+  "icon": "icon.png",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -17,6 +19,16 @@
   },
   "categories": [
     "Other"
+  ],
+  "keywords": [
+    "mkdocs",
+    "snippets",
+    "markdown",
+    "documentation",
+    "preview",
+    "lens",
+    "inline",
+    "code-snippets"
   ],
   "activationEvents": [
     "onLanguage:markdown"

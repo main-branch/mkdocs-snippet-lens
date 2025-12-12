@@ -57,15 +57,13 @@ jobs:
           TAG_NAME="${GITHUB_REF#refs/tags/}"
           gh release upload "$TAG_NAME" *.vsix
 
-      # Uncomment when ready to publish to VS Code Marketplace
-      # - name: Publish to VS Code Marketplace
-      #   env:
-      #     VSCE_PAT: ${{ secrets.VSCE_PAT }}
-      #   run: vsce publish --pat "$VSCE_PAT"
+      - name: Publish to VS Code Marketplace
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+        run: vsce publish --pat "$VSCE_PAT"
 
-      # Uncomment when ready to publish to Open VSX
-      # - name: Publish to Open VSX
-      #   env:
-      #     OVSX_PAT: ${{ secrets.OVSX_PAT }}
-      #   run: npx ovsx publish *.vsix --pat "$OVSX_PAT"
+      - name: Publish to Open VSX
+        env:
+          OVSX_PAT: ${{ secrets.OVSX_PAT }}
+        run: npx ovsx publish *.vsix --pat "$OVSX_PAT"
 
