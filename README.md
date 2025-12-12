@@ -41,8 +41,14 @@ issues.
 
 ## Contributing
 
-Contributions are welcome! Please see the repository for development setup and
-guidelines.
+Contributions are welcome! Please read our
+[Contributing Guide](CONTRIBUTING.md) for details on our development workflow,
+including:
+
+- Working on feature branches (never commit directly to `main`)
+- Creating and submitting pull requests
+- Rebase requirements for fast-forward merges
+- Code review process
 
 ## License
 
