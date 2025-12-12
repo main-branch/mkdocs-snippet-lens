@@ -4,6 +4,13 @@ All notable changes to the "mkdocs-snippet-lens" extension will be documented in
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [0.0.3](https://github.com/main-branch/mkdocs-snippet-lens/compare/v0.0.2...v0.0.3) (2025-12-12)
+
+
+### Bug Fixes
+
+* Make Publish Extension job idempotent ([0234f51](https://github.com/main-branch/mkdocs-snippet-lens/commit/0234f517de3e03a4164a41d3acadecaa28234f72))
+
 ## [0.0.2](https://github.com/main-branch/mkdocs-snippet-lens/compare/v0.0.1...v0.0.2) (2025-12-12)
 
 
