@@ -4,6 +4,13 @@ All notable changes to the "mkdocs-snippet-lens" extension will be documented in
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [0.0.7](https://github.com/main-branch/mkdocs-snippet-lens/compare/v0.0.6...v0.0.7) (2025-12-12)
+
+
+### Bug Fixes
+
+* Exclude unnecessary files from VSIX package ([5756516](https://github.com/main-branch/mkdocs-snippet-lens/commit/57565165e9d975c2df3a9808aa59e790ef529b2c))
+
 ## [0.0.6](https://github.com/main-branch/mkdocs-snippet-lens/compare/v0.0.5...v0.0.6) (2025-12-12)
 
 
