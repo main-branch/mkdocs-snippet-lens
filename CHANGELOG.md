@@ -4,6 +4,23 @@ All notable changes to the "mkdocs-snippet-lens" extension will be documented in
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [0.0.4](https://github.com/main-branch/mkdocs-snippet-lens/compare/v0.0.3...v0.0.4) (2025-12-12)
+
+
+### Bug Fixes
+
+* Add missing allowed endpoints to publish workflow ([688173d](https://github.com/main-branch/mkdocs-snippet-lens/commit/688173ddfb458d055c265dbcd62625e30ffa8463))
+
+
+### Documentation
+
+* Fix CI badge to reference correct workflow file ([7ec5936](https://github.com/main-branch/mkdocs-snippet-lens/commit/7ec5936030b4224b08761f4d32da1328ed563141))
+
+
+### Miscellaneous Chores
+
+* Update dev dependencies to latest versions ([924aea9](https://github.com/main-branch/mkdocs-snippet-lens/commit/924aea9bc648878dc8bf77f1d92f821f45c5c01e))
+
 ## [0.0.3](https://github.com/main-branch/mkdocs-snippet-lens/compare/v0.0.2...v0.0.3) (2025-12-12)
 
 
