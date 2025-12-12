@@ -1,6 +1,6 @@
 # MkDocs Snippet Lens
 
-[![CI](https://github.com/main-branch/mkdocs-snippet-lens/actions/workflows/ci.yml/badge.svg)](https://github.com/main-branch/mkdocs-snippet-lens/actions/workflows/ci.yml)
+[![Continuous Integration](https://github.com/main-branch/mkdocs-snippet-lens/actions/workflows/continuous-integration.yml/badge.svg)](https://github.com/main-branch/mkdocs-snippet-lens/actions/workflows/continuous-integration.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 A Visual Studio Code extension that provides inline previews, clickable links, and
