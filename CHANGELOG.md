@@ -4,6 +4,13 @@ All notable changes to the "mkdocs-snippet-lens" extension will be documented in
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [0.0.5](https://github.com/main-branch/mkdocs-snippet-lens/compare/v0.0.4...v0.0.5) (2025-12-12)
+
+
+### Bug Fixes
+
+* Update engines.vscode to match @types/vscode version ([507fb45](https://github.com/main-branch/mkdocs-snippet-lens/commit/507fb45c331c8d6556cb1addcae58dc0caa6b2a0))
+
 ## [0.0.4](https://github.com/main-branch/mkdocs-snippet-lens/compare/v0.0.3...v0.0.4) (2025-12-12)
 
 
