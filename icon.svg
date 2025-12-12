@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <!-- Background circle -->
+  <circle cx="64" cy="64" r="60" fill="#0277BD" opacity="0.1"/>
+
+  <!-- Document page -->
+  <path d="M35 25 L75 25 L90 40 L90 95 Q90 100 85 100 L40 100 Q35 100 35 95 Z"
+        fill="#FFFFFF" stroke="#0277BD" stroke-width="2"/>
+
+  <!-- Page fold -->
+  <path d="M75 25 L75 40 L90 40"
+        fill="none" stroke="#0277BD" stroke-width="2"/>
+
+  <!-- Snippet lines (representing code/text) -->
+  <text x="42" y="53" font-family="monospace, 'Courier New'" font-size="11" font-weight="bold" fill="#0277BD" opacity="0.8">MkDocs</text>
+  <text x="40" y="64" font-family="monospace, 'Courier New'" font-size="8" font-weight="bold" fill="#0277BD" opacity="0.8">snippet</text>
+
+  <text x="40" y="75" font-family="monospace, 'Courier New'" font-size="8" font-weight="bold" fill="#0277BD" opacity="0.8">lens</text>
+
+  <!-- Snippet marker text (MkDocs snippet syntax) -->
+  <text x="40" y="91" font-family="monospace, 'Courier New'" font-size="11" font-weight="bold" fill="#E64A19">--8&lt;--</text>
+
+  <!-- Magnifying glass (lens) -->
+  <circle cx="74" cy="73" r="6" fill="none" stroke="#4CAF50" stroke-width="2"/>
+  <circle cx="74" cy="73" r="3" fill="#4CAF50" opacity="0.1"/>
+  <line x1="78" y1="77" x2="85" y2="84" stroke="#4CAF50" stroke-width="2" stroke-linecap="round"/>
+
+  <!-- Inner circle detail in lens -->
+  <circle cx="74" cy="73" r="1.5" fill="none" stroke="#4CAF50" stroke-width="1" opacity="0.5"/>
+</svg>
