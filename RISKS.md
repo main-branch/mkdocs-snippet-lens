@@ -1,6 +1,33 @@
 # Project Risks: MkDocs Snippet Lens
 
-This document identifies potential risks to the successful development, deployment, and maintenance of the MkDocs Snippet Lens VS Code extension. Each risk includes an assessment of likelihood, impact, and mitigation strategies.
+- [1. Technical Risks](#1-technical-risks)
+  - [1.1 VS Code API Limitations](#11-vs-code-api-limitations)
+  - [1.2 Configuration Validation and User Error](#12-configuration-validation-and-user-error)
+  - [1.3 Accessibility and Internationalization (i18n)](#13-accessibility-and-internationalization-i18n)
+  - [1.4 Cross-Platform Path Resolution Issues](#14-cross-platform-path-resolution-issues)
+  - [1.5 Performance Degradation with Large Files](#15-performance-degradation-with-large-files)
+  - [1.6 Recursive Snippet Circular Reference Bugs](#16-recursive-snippet-circular-reference-bugs)
+  - [1.7 Regex Pattern Matching Failures](#17-regex-pattern-matching-failures)
+- [2. Security Risks](#2-security-risks)
+  - [2.1 Path Traversal Vulnerabilities](#21-path-traversal-vulnerabilities)
+  - [2.2 Symlink Exploitation](#22-symlink-exploitation)
+  - [2.3 Dependency Vulnerabilities](#23-dependency-vulnerabilities)
+- [3. User Experience Risks](#3-user-experience-risks)
+  - [3.1 Visual Confusion with Ghost Text](#31-visual-confusion-with-ghost-text)
+  - [3.2 Complexity Overwhelming Users](#32-complexity-overwhelming-users)
+  - [3.3 Compatibility Issues with Other Extensions](#33-compatibility-issues-with-other-extensions)
+- [4. Project Management Risks](#4-project-management-risks)
+  - [4.1 Scope Creep](#41-scope-creep)
+-- [5. Adoption & Market Risks](#5-adoption--market-risks)
+  - [5.1 Low User Adoption](#51-low-user-adoption)
+-- [6. Maintenance & Sustainability Risks](#6-maintenance--sustainability-risks)
+  - [6.1 Dependency Obsolescence](#61-dependency-obsolescence)
+  - [6.2 Technical Debt Accumulation](#62-technical-debt-accumulation)
+- [Risk Monitoring \& Review](#risk-monitoring--review)
+
+This document identifies potential risks to the successful development, deployment,
+and maintenance of the MkDocs Snippet Lens VS Code extension. Each risk includes an
+assessment of likelihood, impact, and mitigation strategies.
 
 **Risk Rating Scale:**
 
@@ -14,29 +41,33 @@ This document identifies potential risks to the successful development, deployme
 
 ### 1.1 VS Code API Limitations
 
-**Risk:** VS Code's Text Decoration API may not support all desired ghost text rendering features, particularly for large content blocks or complex formatting.
+**Risk:** VS Code's Text Decoration API does not support multi-line ghost text block
+previews. Only single line decoration previews are possible with the current API,
+regardless of newlines in the content. This limits the fidelity of inline snippet
+previews.
 
-- **Likelihood:** Medium
-- **Impact:** High
-- **Overall Risk:** High
+- **Likelihood:** High (confirmed limitation)
+- **Impact:** Medium (affects user experience, not core functionality)
+- **Overall Risk:** Medium
 
 **Mitigation Strategies:**
 
-- Prototype ghost text rendering early in development to validate feasibility
-- Test with various content sizes and formats before full implementation
-- Have fallback approach (hover provider only) if decorations prove insufficient
+- Document this limitation clearly in README, REQUIREMENTS.md, and IMPLEMENTATION.md
+  ([DONE])
+- Use hover tooltips to provide a better multi-line preview experience ([DONE])
+- Per-snippet toggles, recursive expansion, and advanced preview features are
+  [Planned] for future releases
 - Limit preview length via `previewLines` setting to prevent decoration overload
-- Research alternative APIs (Webview panels, virtual documents) as backup
+  ([DONE])
+- Monitor VS Code API updates for future support of block-style decorations
+  ([Planned])
+- Research alternative APIs (Webview panels, virtual documents) as backup for future
+  releases ([DONE])
 
-**Indicators:**
+### 1.2 Configuration Validation and User Error
 
-- Decorations fail to render multi-line content properly
-- Performance degrades with large snippet previews
-- Decorations conflict with other extensions
-
-### 1.2 Cross-Platform Path Resolution Issues
-
-**Risk:** Path resolution logic may behave inconsistently across Windows, macOS, and Linux due to different file system conventions.
+**Risk:** Invalid or misconfigured settings could cause unexpected extension behavior
+or degrade user experience.
 
 - **Likelihood:** Medium
 - **Impact:** Medium
@@ -44,7 +75,60 @@ This document identifies potential risks to the successful development, deployme
 
 **Mitigation Strategies:**
 
-- Use VS Code's built-in path utilities (`vscode.Uri`, `path` module) instead of string manipulation
+- Validate all configuration settings on activation and change ([DONE] for MVP
+  settings, [Planned] for full validation)
+- Provide clear error/warning messages in the output channel ([DONE])
+- Always fall back to safe defaults ([DONE])
+- Document configuration options and validation rules in README ([DONE])
+
+**Indicators:**
+
+- User reports of settings not working as expected
+- Output channel warnings about invalid configuration
+
+### 1.3 Accessibility and Internationalization (i18n)
+
+**Risk:** Lack of accessibility features or i18n support could exclude some users or
+limit adoption, especially for non-English speakers or users with disabilities.
+
+- **Likelihood:** Medium
+- **Impact:** Medium
+- **Overall Risk:** Medium
+
+**Mitigation Strategies:**
+
+- Follow VS Code accessibility guidelines ([Planned])
+- Ensure all commands and UI elements are keyboard accessible ([DONE] for MVP,
+  [Planned] for advanced features)
+- Add screen reader support and status announcements ([Planned])
+- Prepare error messages and UI text for localization ([Planned])
+- Solicit feedback from users with accessibility needs ([Planned])
+
+**Indicators:**
+
+- User feedback about accessibility or language barriers
+- Accessibility audit findings
+
+**Indicators:**
+
+- Inline previews always appear as a single (potentially long) line, even if the
+  snippet content contains newlines
+- User feedback or confusion about lack of block-style previews
+- Feature requests for true multi-line or block-style ghost text
+
+### 1.4 Cross-Platform Path Resolution Issues
+
+**Risk:** Path resolution logic may behave inconsistently across Windows, macOS, and
+Linux due to different file system conventions.
+
+- **Likelihood:** Medium
+- **Impact:** Medium
+- **Overall Risk:** Medium
+
+**Mitigation Strategies:**
+
+- Use VS Code's built-in path utilities (`vscode.Uri`, `path` module) instead of
+  string manipulation
 - Test thoroughly on all three platforms in CI/CD pipeline
 - Normalize paths early in processing pipeline
 - Handle case-sensitivity differences explicitly
@@ -56,9 +140,10 @@ This document identifies potential risks to the successful development, deployme
 - User reports of broken snippet links on specific OS
 - Path separators (/ vs \) cause issues
 
-### 1.3 Performance Degradation with Large Files
+### 1.5 Performance Degradation with Large Files
 
-**Risk:** Processing large snippet files or documents with many snippets could cause VS Code to become unresponsive.
+**Risk:** Processing large snippet files or documents with many snippets could cause
+VS Code to become unresponsive.
 
 - **Likelihood:** Medium
 - **Impact:** High
@@ -81,9 +166,10 @@ This document identifies potential risks to the successful development, deployme
 - Memory usage exceeds 200MB
 - User complaints about performance
 
-### 1.4 Recursive Snippet Circular Reference Bugs
+### 1.6 Recursive Snippet Circular Reference Bugs
 
-**Risk:** Circular reference detection algorithm may fail in edge cases, causing infinite loops or crashes.
+**Risk:** Circular reference detection algorithm may fail in edge cases, causing
+infinite loops or crashes.
 
 - **Likelihood:** Low
 - **Impact:** Critical
@@ -105,9 +191,10 @@ This document identifies potential risks to the successful development, deployme
 - Stack overflow errors
 - Infinite loop detected by watchdog timer
 
-### 1.5 Regex Pattern Matching Failures
+### 1.7 Regex Pattern Matching Failures
 
-**Risk:** Regular expressions for detecting snippet syntax may have edge cases causing false positives or missed detections.
+**Risk:** Regular expressions for detecting snippet syntax may have edge cases
+causing false positives or missed detections.
 
 - **Likelihood:** Medium
 - **Impact:** Medium
@@ -134,7 +221,8 @@ This document identifies potential risks to the successful development, deployme
 
 ### 2.1 Path Traversal Vulnerabilities
 
-**Risk:** Malicious or misconfigured snippet paths could access files outside the workspace, exposing sensitive data.
+**Risk:** Malicious or misconfigured snippet paths could access files outside the
+workspace, exposing sensitive data.
 
 - **Likelihood:** Low
 - **Impact:** Critical
@@ -158,7 +246,8 @@ This document identifies potential risks to the successful development, deployme
 
 ### 2.2 Symlink Exploitation
 
-**Risk:** Symbolic links could be used to bypass path traversal protection and access files outside workspace.
+**Risk:** Symbolic links could be used to bypass path traversal protection and access
+files outside workspace.
 
 - **Likelihood:** Low
 - **Impact:** High
@@ -181,7 +270,8 @@ This document identifies potential risks to the successful development, deployme
 
 ### 2.3 Dependency Vulnerabilities
 
-**Risk:** Third-party npm packages may contain security vulnerabilities that could be exploited.
+**Risk:** Third-party npm packages may contain security vulnerabilities that could be
+exploited.
 
 - **Likelihood:** Medium
 - **Impact:** Medium
@@ -207,7 +297,8 @@ This document identifies potential risks to the successful development, deployme
 
 ### 3.1 Visual Confusion with Ghost Text
 
-**Risk:** Users may mistake ghost text previews for actual markdown content and attempt to edit them.
+**Risk:** Users may mistake ghost text previews for actual markdown content and
+attempt to edit them.
 
 - **Likelihood:** Medium
 - **Impact:** Low
@@ -215,12 +306,12 @@ This document identifies potential risks to the successful development, deployme
 
 **Mitigation Strategies:**
 
-- Use strong visual differentiation (italic, faded, subtle border)
-- Theme-aware colors to work in all color schemes
-- Clear documentation in README with screenshots
-- Default to previews OFF to avoid surprise
-- Provide easy toggle mechanisms
-- Consider adding subtle label like "[Preview]" at start
+- Use strong visual differentiation (italic, faded, subtle border) ([DONE])
+- Theme-aware colors to work in all color schemes ([DONE])
+- Clear documentation in README with screenshots ([DONE])
+- Default to previews OFF to avoid surprise ([DONE])
+- Provide easy toggle mechanisms ([Planned])
+- Consider adding subtle label like "[Preview]" at start ([Planned])
 
 **Indicators:**
 
@@ -230,7 +321,8 @@ This document identifies potential risks to the successful development, deployme
 
 ### 3.2 Complexity Overwhelming Users
 
-**Risk:** Too many features, settings, and toggle options may confuse users, reducing adoption.
+**Risk:** Too many features, settings, and toggle options may confuse users, reducing
+adoption.
 
 - **Likelihood:** Medium
 - **Impact:** Medium
@@ -253,7 +345,8 @@ This document identifies potential risks to the successful development, deployme
 
 ### 3.3 Compatibility Issues with Other Extensions
 
-**Risk:** Conflicts with other popular VS Code extensions (linters, formatters, preview extensions) could break functionality.
+**Risk:** Conflicts with other popular VS Code extensions (linters, formatters,
+preview extensions) could break functionality.
 
 - **Likelihood:** Low
 - **Impact:** Medium
@@ -277,7 +370,8 @@ This document identifies potential risks to the successful development, deployme
 
 ### 4.1 Scope Creep
 
-**Risk:** Adding too many features beyond MVP could delay release and increase complexity.
+**Risk:** Adding too many features beyond MVP could delay release and increase
+complexity.
 
 - **Likelihood:** High
 - **Impact:** Medium
@@ -297,75 +391,6 @@ This document identifies potential risks to the successful development, deployme
 - Timeline slipping
 - Core features incomplete while working on "nice-to-haves"
 - Implementation document keeps growing
-
-### 4.2 Insufficient Testing Coverage
-
-**Risk:** Failing to achieve 90% test coverage could lead to bugs in production and user frustration.
-
-- **Likelihood:** Medium
-- **Impact:** High
-- **Overall Risk:** High
-
-**Mitigation Strategies:**
-
-- Enforce coverage thresholds in CI/CD (fail build < 90%)
-- Write tests alongside implementation (TDD approach)
-- Focus on critical paths first (error handling, security)
-- Use coverage reports to identify gaps
-- Include integration tests on all platforms
-- Test edge cases systematically
-
-**Indicators:**
-
-- Coverage trending downward
-- Bugs found in production that should have been caught by tests
-- Test suite incomplete for new features
-
-### 4.3 Release Automation Failures
-
-**Risk:** GitHub Actions workflows or release-please automation could fail, blocking releases.
-
-- **Likelihood:** Medium
-- **Impact:** Medium
-- **Overall Risk:** Medium
-
-**Mitigation Strategies:**
-
-- Test release workflow in staging/fork first
-- Maintain manual release procedure as backup
-- Monitor GitHub Actions status and logs
-- Keep secrets (VSCE_PAT) up to date
-- Document troubleshooting steps for common failures
-- Use workflow_dispatch to allow manual triggering
-
-**Indicators:**
-
-- Build failures in CI/CD
-- Release PRs not created automatically
-- Marketplace publishing errors
-
-### 4.4 Solo Developer Bottleneck
-
-**Risk:** Single maintainer could become overwhelmed with issues, PRs, and maintenance, leading to project stagnation.
-
-- **Likelihood:** Medium
-- **Impact:** Medium
-- **Overall Risk:** Medium
-
-**Mitigation Strategies:**
-
-- Set realistic expectations for support in README
-- Use issue templates to streamline bug reports
-- Be selective about feature requests - focus on high-value items
-- Consider adding contributors if project gains traction
-- Automate where possible (CI/CD, issue labeling, stale issue cleanup)
-- Take breaks to avoid burnout
-
-**Indicators:**
-
-- Issue backlog growing faster than resolution rate
-- Delayed responses to users
-- Feeling overwhelmed or burned out
 
 ## 5. Adoption & Market Risks
 
@@ -392,57 +417,12 @@ This document identifies potential risks to the successful development, deployme
 - Minimal GitHub stars or engagement
 - No user feedback or issues filed
 
-### 5.2 MkDocs Syntax Changes
-
-**Risk:** MkDocs project could change snippet syntax in future versions, breaking the extension.
-
-- **Likelihood:** Low
-- **Impact:** High
-- **Overall Risk:** Medium
-
-**Mitigation Strategies:**
-
-- Monitor MkDocs project for syntax changes
-- Design regex patterns to be flexible where possible
-- Version compatibility checking (if MkDocs version is detectable)
-- Maintain backwards compatibility when feasible
-- Quick response to breaking changes with patch releases
-- Document which MkDocs versions are supported
-
-**Indicators:**
-
-- MkDocs release notes mention snippet syntax changes
-- User reports of broken functionality after MkDocs update
-- Tests fail with newer MkDocs behavior
-
-### 5.3 VS Code Marketplace Rejection
-
-**Risk:** Extension could be rejected from VS Code Marketplace due to policy violations or technical issues.
-
-- **Likelihood:** Low
-- **Impact:** High
-- **Overall Risk:** Low
-
-**Mitigation Strategies:**
-
-- Review VS Code Marketplace policies before submission
-- Follow extension guidelines and best practices
-- Test .vsix package installation thoroughly
-- Ensure all required metadata is complete
-- Have fallback: users can install from .vsix manually
-- Address any rejection feedback promptly
-
-**Indicators:**
-
-- Submission rejected during review
-- Policy violation warnings
-- Package validation errors
-
 ## 6. Maintenance & Sustainability Risks
 
 ### 6.1 Dependency Obsolescence
 
-**Risk:** Dependencies may become unmaintained or incompatible with future VS Code versions.
+**Risk:** Dependencies may become unmaintained or incompatible with future VS Code
+versions.
 
 - **Likelihood:** Low
 - **Impact:** Medium
@@ -465,7 +445,8 @@ This document identifies potential risks to the successful development, deployme
 
 ### 6.2 Technical Debt Accumulation
 
-**Risk:** Rush to release or poor design decisions could create technical debt that hampers future development.
+**Risk:** Rush to release or poor design decisions could create technical debt that
+hampers future development.
 
 - **Likelihood:** Medium
 - **Impact:** Medium
