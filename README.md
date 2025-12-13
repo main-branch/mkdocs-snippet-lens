@@ -19,6 +19,16 @@ diagnostics for MkDocs `--8<--` snippet references in Markdown files.
 - **Error Diagnostics**: Get immediate feedback when snippet files are missing
 - **Hover Previews**: View full snippet content on hover
 
+**Planned Features:**
+
+- Named sections, line ranges, multiple ranges, negative indexes (advanced snippet syntax)
+- Recursive snippet expansion and circular reference detection
+- Performance and scalability for a large number of snippets or large snippet files
+- Advanced error handling (invalid paths, permissions, section markers, recursion)
+- Accessibility and i18n support
+- Auto-refresh on snippet file changes
+
+These features are planned for future releases.
 
 ## Installation
 
