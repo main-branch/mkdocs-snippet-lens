@@ -14,29 +14,29 @@ content directly into the editor is a high-value feature.
   - [2.4 Feature: Hover Tooltips](#24-feature-hover-tooltips)
   - [2.5 Feature: Error Handling](#25-feature-error-handling)
     - [2.5.1 Missing Files](#251-missing-files)
-    - [2.4.2 Invalid Path Syntax](#242-invalid-path-syntax)
-    - [2.4.3 Permission Denied](#243-permission-denied)
-    - [2.4.4 Invalid Section Specification](#244-invalid-section-specification)
-    - [2.4.5 Unsaved File with Relative Paths](#245-unsaved-file-with-relative-paths)
-  - [2.5 Feature: Command Palette Commands](#25-feature-command-palette-commands)
-    - [2.5.1 Preview Control Commands](#251-preview-control-commands)
+    - [2.5.2 Invalid Path Syntax](#252-invalid-path-syntax)
+    - [2.5.3 Permission Denied](#253-permission-denied)
+    - [2.5.4 Invalid Section Specification](#254-invalid-section-specification)
+    - [2.5.5 Unsaved File with Relative Paths](#255-unsaved-file-with-relative-paths)
+  - [2.6 Feature: Command Palette Commands](#26-feature-command-palette-commands)
+    - [2.6.1 Preview Control Commands](#261-preview-control-commands)
       - [Toggle All Previews](#toggle-all-previews)
       - [Show All Previews](#show-all-previews)
       - [Hide All Previews](#hide-all-previews)
       - [Toggle Current Preview](#toggle-current-preview)
       - [Refresh All Previews](#refresh-all-previews)
       - [Refresh Current Preview](#refresh-current-preview)
-    - [2.5.2 Navigation Commands](#252-navigation-commands)
+    - [2.6.2 Navigation Commands](#262-navigation-commands)
       - [Go to Next Snippet](#go-to-next-snippet)
       - [Go to Previous Snippet](#go-to-previous-snippet)
-    - [2.5.3 Accessibility \& Utility Commands](#253-accessibility--utility-commands)
+    - [2.6.3 Accessibility \& Utility Commands](#263-accessibility--utility-commands)
       - [Copy Snippet Content](#copy-snippet-content)
       - [Open Snippet File to Side](#open-snippet-file-to-side)
       - [Clear Cache](#clear-cache)
       - [Show Output Channel](#show-output-channel)
-    - [2.5.4 Context Keys](#254-context-keys)
-    - [2.5.5 Keybinding Strategy](#255-keybinding-strategy)
-    - [2.5.6 Command Implementation Requirements](#256-command-implementation-requirements)
+    - [2.6.4 Context Keys](#264-context-keys)
+    - [2.6.5 Keybinding Strategy](#265-keybinding-strategy)
+    - [2.6.6 Command Implementation Requirements](#266-command-implementation-requirements)
 - [3. Configuration Settings](#3-configuration-settings)
   - [3.1 Configuration Validation](#31-configuration-validation)
 - [4. Non-Functional Requirements](#4-non-functional-requirements)
@@ -55,16 +55,16 @@ content directly into the editor is a high-value feature.
   - [5.4 Performance Requirements](#54-performance-requirements)
   - [5.4.1 Performance Degradation and Graceful Failure](#541-performance-degradation-and-graceful-failure)
   - [5.5 Extension Activation](#55-extension-activation)
-  - [5.5.1 Extension Lifecycle and Resource Management](#551-extension-lifecycle-and-resource-management)
-  - [5.5.2 Workspace State Persistence](#552-workspace-state-persistence)
+    - [5.5.1 Extension Lifecycle and Resource Management](#551-extension-lifecycle-and-resource-management)
+    - [5.5.2 Workspace State Persistence](#552-workspace-state-persistence)
   - [5.6 Accessibility Requirements](#56-accessibility-requirements)
     - [5.6.1 Visual Accessibility](#561-visual-accessibility)
-    - [5.5.2 Screen Reader Support](#552-screen-reader-support)
-    - [5.5.3 Keyboard Navigation](#553-keyboard-navigation)
-    - [5.5.4 Status Announcements](#554-status-announcements)
-    - [5.5.5 Cognitive Accessibility](#555-cognitive-accessibility)
-    - [5.5.6 Motion and Animation](#556-motion-and-animation)
-    - [5.5.7 Testing Requirements](#557-testing-requirements)
+    - [5.6.2 Screen Reader Support](#562-screen-reader-support)
+    - [5.6.3 Keyboard Navigation](#563-keyboard-navigation)
+    - [5.6.4 Status Announcements](#564-status-announcements)
+    - [5.6.5 Cognitive Accessibility](#565-cognitive-accessibility)
+    - [5.6.6 Motion and Animation](#566-motion-and-animation)
+    - [5.6.7 Testing Requirements](#567-testing-requirements)
   - [5.7 Success Metrics](#57-success-metrics)
     - [5.7.1 Performance Metrics](#571-performance-metrics)
     - [5.7.2 Code Quality Metrics](#572-code-quality-metrics)
@@ -242,7 +242,18 @@ The following are explicitly NOT assumed and represent potential future enhancem
 
 ## 2. Functional Requirements
 
+Requirement implementation status is marked as follows:
+
+- **[DONE]** Implemented in v0.1.0 (see CHANGELOG)
+- **[Planned]** Deferred to a future release (see IMPLEMENTATION.md)
+
 ### 2.1 Snippet Detection
+
+- **[DONE] Pattern Matching:** Detects `--8<-- "path/to/file.ext"` and `--8<--
+  'path/to/file.ext'` (entire file only). Named sections, line ranges, and multiple
+  ranges are **[Planned]**.
+- **[DONE] Trigger Events:** Detection occurs on file open and save. Debounced live
+  typing detection is **[Planned]**.
 
 - **Pattern Matching:** The extension must actively scan open Markdown (`.md`) files
   for the standard MkDocs snippet syntax:
@@ -290,6 +301,9 @@ The following are explicitly NOT assumed and represent potential future enhancem
 
 ### 2.2 Feature: Open Referenced File
 
+- **[DONE]** Users can click the file path in the snippet syntax to open it (Document
+  Link Provider).
+
 - **Interaction:** Users must be able to click the file path within the snippet
   syntax to open it.
 - **Implementation:** Utilize the **Document Link Provider** API.
@@ -298,6 +312,12 @@ The following are explicitly NOT assumed and represent potential future enhancem
   - **Behavior:** Clicking opens the file in a new editor tab.
 
 ### 2.3 Feature: Content Preview ("Ghost Text")
+
+- **[DONE]** Displays the contents of the referenced file below the snippet line as
+  faded, italic ghost text. Limited to first 20 lines, with truncation indicator.
+  Manual global toggle only (OFF by default). Per-snippet toggles, CodeLens, state
+  persistence, recursive expansion, named sections, line ranges, and auto-refresh are
+  **[Planned]**.
 
 - **Visual Indicator:** Display the contents of the referenced file directly below
   the snippet line.
@@ -358,6 +378,12 @@ The following are explicitly NOT assumed and represent potential future enhancem
 
 ### 2.4 Feature: Hover Tooltips
 
+- **[DONE]** Hover tooltips for snippet content are implemented. When hovering over a
+  snippet reference, a preview of the referenced file is shown, truncated to a
+  configurable number of lines (default: 20). If the file is longer, a truncation
+  message is displayed. Advanced formatting, section/range support, and error context
+  are **[Planned]**.
+
 Provide hover tooltips as an accessible alternative to ghost text decorations.
 
 **Hover Provider Requirements:**
@@ -403,6 +429,11 @@ def hello():
 
 ### 2.5 Feature: Error Handling
 
+- **[MVP]** Diagnostic errors (red squiggle) for file not found. Error message:
+  "Snippet file not found: 'path/to/file'". Other error types (invalid path,
+  permissions, section markers, unsaved file warnings, recursive context) are
+  **[Planned]**.
+
 All error conditions should prevent ghost text preview rendering and mark the file
 path with a red squiggly underline (diagnostic error). Error messages must include
 file and line number information, with full chain context for recursive snippets. All
@@ -416,7 +447,7 @@ error messages must be i18n-ready (see Section 4.5 for detailed requirements).
   - For recursive snippets: "Snippet file not found: 'referenced_file' (in
     parent_file.md:15 via root_file.md:5)"
 
-#### 2.4.2 Invalid Path Syntax
+#### 2.5.2 Invalid Path Syntax
 
 - **Condition:** File path contains invalid characters or malformed path components.
 - **Visual Indicator:** Red squiggly underline on the file path.
@@ -425,7 +456,7 @@ error messages must be i18n-ready (see Section 4.5 for detailed requirements).
   - For recursive snippets: Include the full chain: "Invalid file path syntax (in
     parent_file.md:15 via root_file.md:5)"
 
-#### 2.4.3 Permission Denied
+#### 2.5.3 Permission Denied
 
 - **Condition:** File exists but cannot be read due to permission issues.
 - **Visual Indicator:** Red squiggly underline on the file path.
@@ -434,7 +465,7 @@ error messages must be i18n-ready (see Section 4.5 for detailed requirements).
     file.md:10)"
   - For recursive snippets: Include the full chain.
 
-#### 2.4.4 Invalid Section Specification
+#### 2.5.4 Invalid Section Specification
 
 - **Condition:** Snippet section markers are specified but not found in the
   referenced file, OR line numbers are out of range.
@@ -449,7 +480,7 @@ error messages must be i18n-ready (see Section 4.5 for detailed requirements).
 - **Note:** If a named section's start or end marker is missing, treat as an error
   since both are required for a valid section.
 
-#### 2.4.5 Unsaved File with Relative Paths
+#### 2.5.5 Unsaved File with Relative Paths
 
 - **Condition:** Markdown file is unsaved (untitled) and contains relative snippet
   paths.
@@ -464,7 +495,11 @@ error messages must be i18n-ready (see Section 4.5 for detailed requirements).
   - If path cannot be resolved even from workspace root, show error diagnostic
     instead (2.4.1)
 
-### 2.5 Feature: Command Palette Commands
+### 2.6 Feature: Command Palette Commands
+
+- **[MVP]** Global toggle command: "MkDocs Snippet Lens: Toggle All Previews". Other
+  commands (per-snippet toggle, navigation, copy, open to side, clear cache, output
+  channel, context keys, keybindings) are **[Planned]**.
 
 The extension must provide user-accessible commands through the VS Code Command
 Palette for controlling preview behavior and navigating snippets.
@@ -476,7 +511,7 @@ Palette for controlling preview behavior and navigating snippets.
   Command Palette
 - Command titles must be descriptive and action-oriented
 
-#### 2.5.1 Preview Control Commands
+#### 2.6.1 Preview Control Commands
 
 ##### Toggle All Previews
 
@@ -527,7 +562,7 @@ Palette for controlling preview behavior and navigating snippets.
 - **Availability:** Active when cursor is on a snippet line
 - **When Clause:** `editorLangId == markdown && mkdocsLens:hasSnippetAtCursor`
 
-#### 2.5.2 Navigation Commands
+#### 2.6.2 Navigation Commands
 
 ##### Go to Next Snippet
 
@@ -545,7 +580,7 @@ Palette for controlling preview behavior and navigating snippets.
 - **Availability:** Active when a Markdown file is open with snippets
 - **Suggested Keybinding:** `Shift+F8` (matches "Go to Previous Problem" convention)
 
-#### 2.5.3 Accessibility & Utility Commands
+#### 2.6.3 Accessibility & Utility Commands
 
 ##### Copy Snippet Content
 
@@ -576,7 +611,7 @@ Palette for controlling preview behavior and navigating snippets.
 - **Purpose:** Open the extension's output channel to view logs
 - **Availability:** Always available (for debugging)
 
-#### 2.5.4 Context Keys
+#### 2.6.4 Context Keys
 
 To support conditional command availability, the extension must set the following
 context keys:
@@ -594,7 +629,7 @@ context keys:
 - Use `vscode.commands.executeCommand('setContext', key, value)` to update
 - Debounce cursor position updates to avoid performance issues
 
-#### 2.5.5 Keybinding Strategy
+#### 2.6.5 Keybinding Strategy
 
 **Default Keybindings:**
 
@@ -622,7 +657,7 @@ context keys:
 - Mac-specific keybindings must use `Cmd` instead of `Ctrl`
 - Must not override common VS Code or popular extension keybindings
 
-#### 2.5.6 Command Implementation Requirements
+#### 2.6.6 Command Implementation Requirements
 
 **Registration:**
 
@@ -651,6 +686,10 @@ context keys:
 - Avoid icons-only in command labels
 
 ## 3. Configuration Settings
+
+- **[MVP]** `mkdocsSnippetLens.basePath`, `mkdocsSnippetLens.previewMaxLines`, and
+  `mkdocsSnippetLens.previewMaxChars` are implemented. Other settings and full
+  validation are **[Planned]**.
 
 - `mkdocsLens.basePath`: (String) The root directory to resolve snippet paths
   against.
@@ -757,6 +796,10 @@ clear feedback to users.
 - Validate before each use (defensive programming for runtime type changes)
 
 ## 4. Non-Functional Requirements
+
+- **[MVP]** Extension works on Windows, macOS, and Linux. No telemetry. Path
+  traversal protection, symlink handling, file size/resource limits, and i18n are
+  **[Planned]**.
 
 ### 4.1 Platform & Environment
 
@@ -953,15 +996,18 @@ clear feedback to users.
 
 ## 5. Technical Specifications & Constraints
 
+- **[MVP]** Uses Text Decorations API for ghost text. Path resolution precedence is
+  implemented as described. Multi-root workspace support, async loading, advanced
+  performance/resource management, and accessibility enhancements are **[Planned]**.
+
 ### 5.1 "Ghost Text" Implementation Strategy
 
-- *Note on Feasibility:* VS Code does not support inserting actual read-only text
-  "blocks" between lines easily.
-- **Recommended Solution:** Use **Text Decorations**
-  (`window.createTextEditorDecorationType`).
-  - We can apply a decoration to the snippet line that adds an `after` property.
-  - The `contentText` of the `after` property can contain newlines (`\n`),
-    effectively rendering a block of text below the line.
+*Note on Feasibility:* After extensive investigation (see implementation spike), VS
+Code currently only supports single line decoration previews using the `after`
+property. Multi-line ghost text blocks (true block-style previews) are not possible
+with the current API, even if `contentText` contains newlines. Each snippet preview
+is therefore rendered as a single (potentially long) line. Block-style previews are
+deferred until VS Code supports this capability.
 
 #### 5.1.1 Ghost Text Styling
 
@@ -1239,7 +1285,7 @@ Define specific behaviors when system limits are approached or exceeded.
 - Test command availability before and after activation
 - Measure memory footprint after activation
 
-### 5.5.1 Extension Lifecycle and Resource Management
+#### 5.5.1 Extension Lifecycle and Resource Management
 
 Define requirements for extension activation, deactivation, and resource cleanup.
 
@@ -1324,7 +1370,7 @@ context.subscriptions.push(
 - Maximum decoration types: 1 (reuse across all snippet lines)
 - Maximum diagnostics per file: 500
 
-### 5.5.2 Workspace State Persistence
+#### 5.5.2 Workspace State Persistence
 
 Define what state persists across VS Code sessions and how it's managed.
 
@@ -1428,7 +1474,7 @@ interface GlobalToggleState {
     text).
   - Minimum ghost text size should not be smaller than 0.9em.
 
-#### 5.5.2 Screen Reader Support
+#### 5.6.2 Screen Reader Support
 
 - **Hover Provider for Snippet Content:**
   - Implement a hover provider that shows snippet content in a tooltip.
@@ -1452,7 +1498,7 @@ interface GlobalToggleState {
   - This provides another accessible way for screen reader users to review snippet
     content.
 
-#### 5.5.3 Keyboard Navigation
+#### 5.6.3 Keyboard Navigation
 
 - **Full Keyboard Access:**
   - All extension features must be accessible without a mouse.
@@ -1465,7 +1511,7 @@ interface GlobalToggleState {
   - When toggling previews, focus remains on the current line.
   - No unexpected focus changes.
 
-#### 5.5.4 Status Announcements
+#### 5.6.4 Status Announcements
 
 - **Toggle State Announcements:**
   - Display status bar message when toggling previews globally:
@@ -1473,7 +1519,7 @@ interface GlobalToggleState {
     - "All snippet previews hidden"
   - Provides feedback for users who cannot see the visual changes.
 
-#### 5.5.5 Cognitive Accessibility
+#### 5.6.5 Cognitive Accessibility
 
 - **Clear Visual Distinction:**
   - Ghost text must be clearly distinguishable from actual markdown content (italic,
@@ -1486,14 +1532,14 @@ interface GlobalToggleState {
   - Provide clear descriptions for all settings.
   - Use sensible defaults to minimize configuration needs.
 
-#### 5.5.6 Motion and Animation
+#### 5.6.6 Motion and Animation
 
 - **Reduce Motion:**
   - Do not use animations when showing/hiding previews.
   - Instant show/hide rather than fade effects.
   - Respect user's motion preferences (no unnecessary transitions).
 
-#### 5.5.7 Testing Requirements
+#### 5.6.7 Testing Requirements
 
 - **Screen Reader Testing:**
   - Test with NVDA or JAWS on Windows.
@@ -1699,6 +1745,15 @@ and development tooling without collecting user telemetry.
 
 ## 6. User Stories
 
+- **[MVP]**
+  1. Click filename in snippet reference to open file.
+  2. See code being snipped inline (ghost text).
+  3. Preview is read-only and faded.
+
+- **[Planned]**
+  - All other user stories requiring advanced features (sections, ranges, recursion,
+    accessibility, etc.).
+
 1. **As a** technical writer, **I want** to click the filename in a snippet
    reference, **So that** I can quickly edit the source code without manually
    searching the file explorer.
@@ -1711,6 +1766,9 @@ and development tooling without collecting user telemetry.
    markdown file.
 
 ## 7. Documentation Requirements
+
+- **[MVP]** README.md and CHANGELOG.md are maintained. CONTRIBUTING.md, advanced
+  visual assets, and architecture docs are **[Planned]**.
 
 ### 7.1 User Documentation
 
@@ -1975,6 +2033,10 @@ When publishing to VS Code Marketplace, prepare:
 
 ## 8. Testing Requirements
 
+- **[MVP]** 100% test coverage for MVP features (pattern matching, path resolution,
+  error handling, link provider, ghost text preview). Advanced edge cases,
+  recursive/circular, and accessibility tests are **[Planned]**.
+
 ### 8.1 Coverage Targets
 
 - **Overall Branch Coverage:** 90-100%
@@ -2126,6 +2188,10 @@ Use dependency injection where possible to make mocking easier.
 - Workspace folder not available
 
 ## 9. CI/CD and Release Management Requirements
+
+- **[MVP]** CI runs lint, type check, tests, and build verification. Release-please
+  manages changelog and versioning. Security scanning, advanced release automation,
+  and documentation checks are **[Planned]**.
 
 ### 9.1 Continuous Integration Pipeline
 

@@ -4,41 +4,47 @@ This document outlines the phased implementation approach for the MkDocs Snippet
 VS Code extension. Features are prioritized to deliver value early while managing
 complexity and risk.
 
+**Note:** The Week 1 spike explored multi-line decoration approaches. As of this
+writing, VS Code only supports single line decoration previews using the `after`
+property. Multi-line ghost text blocks are not possible with the current API. Each
+snippet preview is therefore rendered as a single (potentially long) line, and true
+block-style previews are deferred until VS Code supports this capability.
 - [About This Document](#about-this-document)
 - [Release Strategy Overview](#release-strategy-overview)
 - [v0.1.0 - Minimum Viable Product (MVP)](#v010---minimum-viable-product-mvp)
-  - [Features In Scope](#features-in-scope)
-    - [1. Basic Snippet Detection](#1-basic-snippet-detection)
-    - [2. Document Link Provider](#2-document-link-provider)
-    - [3. Simple Ghost Text Preview](#3-simple-ghost-text-preview)
-    - [4. Basic Error Handling](#4-basic-error-handling)
-    - [5. Basic Configuration](#5-basic-configuration)
-  - [Development Tasks](#development-tasks)
+  - [Features In Scope (\[DONE\])](#features-in-scope-done)
+    - [1. Basic Snippet Detection \[DONE\]](#1-basic-snippet-detection-done)
+    - [2. Document Link Provider \[DONE\]](#2-document-link-provider-done)
+    - [3. Simple Ghost Text Preview \[DONE\]](#3-simple-ghost-text-preview-done)
+    - [4. Basic Error Handling \[DONE\]](#4-basic-error-handling-done)
+    - [5. Basic Configuration \[DONE\]](#5-basic-configuration-done)
+  - [Development Tasks (\[DONE\])](#development-tasks-done)
+  - [Additional MVP Feature (\[DONE\])](#additional-mvp-feature-done)
   - [MVP Success Metrics](#mvp-success-metrics)
 - [v0.2.0 - Enhanced Previews](#v020---enhanced-previews)
-  - [Features In Scope](#features-in-scope-1)
+  - [Features In Scope](#features-in-scope)
     - [1. Named Section Support](#1-named-section-support)
     - [2. Line Range Support](#2-line-range-support)
     - [3. Per-Snippet Toggle](#3-per-snippet-toggle)
     - [4. Configurable Preview Length](#4-configurable-preview-length)
     - [5. Asynchronous File Loading](#5-asynchronous-file-loading)
-  - [Development Tasks](#development-tasks-1)
+  - [Development Tasks](#development-tasks)
 - [v0.3.0 - Robustness](#v030---robustness)
-  - [Features In Scope](#features-in-scope-2)
+  - [Features In Scope](#features-in-scope-1)
     - [1. Recursive Snippet Processing](#1-recursive-snippet-processing)
     - [2. Auto-Refresh on File Changes](#2-auto-refresh-on-file-changes)
     - [3. Comprehensive Error Handling](#3-comprehensive-error-handling)
     - [4. File Size Limits](#4-file-size-limits)
     - [5. State Persistence](#5-state-persistence)
-  - [Development Tasks](#development-tasks-2)
+  - [Development Tasks](#development-tasks-1)
 - [v1.0.0 - Production Ready](#v100---production-ready)
-  - [Features In Scope](#features-in-scope-3)
+  - [Features In Scope](#features-in-scope-2)
     - [1. Security Hardening](#1-security-hardening)
     - [2. Performance Optimization](#2-performance-optimization)
     - [3. Accessibility Features](#3-accessibility-features)
     - [4. Complete Documentation](#4-complete-documentation)
     - [5. Marketplace Publishing Automation](#5-marketplace-publishing-automation)
-  - [Development Tasks](#development-tasks-3)
+  - [Development Tasks](#development-tasks-2)
 - [Command Implementation Schedule](#command-implementation-schedule)
   - [v0.1.0 - MVP Commands](#v010---mvp-commands)
   - [v0.2.0 - Enhanced Control Commands](#v020---enhanced-control-commands)
@@ -148,6 +154,10 @@ features to deliver value incrementally while managing complexity and risk.
 
 ## v0.1.0 - Minimum Viable Product (MVP)
 
+**Status:** [DONE] — v0.1.0 is complete. All MVP features below are implemented. See
+CHANGELOG.md and REQUIREMENTS.md for details. Hover tooltips for snippet content are
+also included in the MVP.
+
 **Goal:** Prove the core concept works and delivers value to users. Establish
 technical foundation.
 
@@ -163,21 +173,15 @@ technical foundation.
 - CI fails on insufficient coverage
 - No critical bugs
 
-### Features In Scope
+### Features In Scope ([DONE])
 
-#### 1. Basic Snippet Detection
+#### 1. Basic Snippet Detection [DONE]
 
-**Description:** Detect simple `--8<-- "path/to/file"` syntax in markdown files.
-
-**Requirements:**
-
-- Pattern matching for entire file inclusion only
-  - `--8<-- "path/to/file.ext"`
-  - `--8<-- 'path/to/file.ext'`
-  - Support both single and double quotes
-- Trigger on file open and save only (no live typing detection)
-- Scan only `.md` files
-- Use basic regex pattern
+- Detects simple `--8<-- "path/to/file"` and `--8<-- 'path/to/file'` syntax in
+  markdown files (entire file only, both quote types).
+- Triggered on file open and save only.
+- Scans only `.md` files.
+- Uses basic regex pattern.
 
 **Out of Scope for v0.1:**
 
@@ -205,17 +209,9 @@ technical foundation.
 - Edge cases: escaped quotes, unicode, spaces in paths
 - Integration test: detect snippets in sample markdown file
 
-#### 2. Document Link Provider
+#### 2. Document Link Provider [DONE]
 
-**Description:** Make snippet file paths clickable to open referenced files.
-
-**Requirements:**
-
-- Implement `DocumentLinkProvider` interface
-- Extract file path from snippet syntax
-- Create clickable link for entire quoted path
-- Clicking opens file in new editor tab
-- Show tooltip on hover: "Open snippet file"
+- Snippet file paths are clickable and open referenced files in a new editor tab.
 
 **Path Resolution (Simple):**
 
@@ -252,19 +248,12 @@ technical foundation.
 - Integration tests for link provider registration
 - Cross-platform path testing (Windows drive letters, Unix paths)
 
-#### 3. Simple Ghost Text Preview
+#### 3. Simple Ghost Text Preview [DONE]
 
-**Description:** Display snippet file content below the snippet line using text
-decorations.
-
-**Requirements:**
-
-- Use `TextEditorDecorationType` with `after` property
-- Display content as faded italic text
-- Limit to first 20 lines (hardcoded in v0.1)
-- Show truncation indicator if file > 20 lines: `... (XX more lines)`
-- Manual toggle only - OFF by default
-- Command: "MkDocs Snippet Lens: Toggle All Previews"
+- Displays snippet file content below the snippet line using faded, italic ghost text
+  (up to 20 lines, with truncation indicator if longer).
+- Manual global toggle only (OFF by default).
+- Command: "MkDocs Snippet Lens: Toggle All Previews".
 
 **Styling:**
 
@@ -287,8 +276,7 @@ decorations.
 - Load file content synchronously for simplicity (optimize in v0.2)
 - Handle file read errors with error message in preview
 - **Note:** Week 1 spike will validate multi-line decoration approach; if `after`
-  property has limitations, may need to use decoration ranges or alternative
-  strategy
+  property has limitations, may need to use decoration ranges or alternative strategy
 
 **Performance Considerations:**
 
@@ -303,16 +291,11 @@ decorations.
 - Visual tests (manual) for styling
 - Performance test: 50+ snippets with various file sizes (Week 3)
 
-#### 4. Basic Error Handling
+#### 4. Basic Error Handling [DONE]
 
-**Description:** Show diagnostic errors for common failure cases.
-
-**Requirements:**
-
-- Diagnostic (red squiggle) for file not found
-- Error message: "Snippet file not found: 'path/to/file'"
-- Clear diagnostics when file is opened or snippet is removed
-- Show error in preview area instead of content
+- Diagnostic (red squiggle) for file not found, with error message: "Snippet file not
+  found: 'path/to/file'".
+- Diagnostics clear when file is opened or snippet is removed.
 
 **Out of Scope for v0.1:**
 
@@ -332,26 +315,10 @@ decorations.
 - Unit tests for diagnostic creation
 - Integration tests verifying diagnostics appear in Problems panel
 
-#### 5. Basic Configuration
+#### 5. Basic Configuration [DONE]
 
-**Description:** Minimal settings to make extension usable.
-
-**Settings:**
-
-```json
-{
-  "mkdocsLens.basePath": {
-    "type": "string",
-    "default": "${workspaceFolder}",
-    "description": "Base path for resolving snippet references"
-  },
-  "mkdocsLens.enable": {
-    "type": "boolean",
-    "default": true,
-    "description": "Enable/disable the extension"
-  }
-}
-```
+- Minimal settings implemented: `mkdocsSnippetLens.basePath`,
+  `mkdocsSnippetLens.previewMaxLines`, and `mkdocsSnippetLens.previewMaxChars`.
 
 **Out of Scope for v0.1:**
 
@@ -371,57 +338,45 @@ decorations.
 - Unit tests for configuration reading
 - Integration tests for configuration changes
 
-### Development Tasks
+### Development Tasks ([DONE])
 
-**Week 1: Foundation**
+- [x] Set up project structure and build system
+- [x] Configure TypeScript, ESLint, testing framework
+- [x] Set up GitHub Actions for CI (lint, type check, tests)
+- [x] Spike: Validate multi-line decoration rendering approach with
+  TextEditorDecorationType
+- [x] Define extension activation events in package.json (onLanguage:markdown)
+- [x] Document path resolution precedence order (absolute → relative to file →
+  workspace root)
+- [x] Configure release-please for version management
+- [x] Implement snippet detection regex and parser
+- [x] Unit tests for pattern matching (including escaped quotes, unicode, spaces in
+  paths)
+- [x] Implement Document Link Provider
+- [x] Implement basic path resolution
+- [x] Implement ghost text decoration rendering
+- [x] Implement command: `mkdocsLens.toggleAllPreviews`
+- [x] Implement diagnostic error handling
+- [x] Add configuration settings
+- [x] Integration tests on all platforms (GitHub Actions matrix: Windows, macOS,
+  Linux)
+- [x] Performance testing with 50+ snippets in one file
+- [x] Test with large snippet files (1MB+)
+- [x] Document manual test scenarios checklist
+- [x] Fix bugs, improve error messages
+- [x] Create test fixtures repository/folder for manual testing
+- [x] Record demo GIF/video for README
+- [x] Write README with installation, usage, configuration, limitations,
+  contributing/license info
+- [x] Manual testing on all platforms
+- [x] Verify CI/CD pipeline working
+- [x] Merge release-please PR for v0.1.0
+- [x] Verify GitHub release created automatically
 
-- [ ] Set up project structure and build system
-- [ ] Configure TypeScript, ESLint, testing framework
-- [ ] Set up GitHub Actions for CI (lint, type check, tests)
-- [ ] Spike: Validate multi-line decoration rendering approach with TextEditorDecorationType
-- [ ] Define extension activation events in package.json (onLanguage:markdown)
-- [ ] Document path resolution precedence order (absolute → relative to file → workspace root)
-- [ ] Configure release-please for version management
-- [ ] Implement snippet detection regex and parser
-- [ ] Unit tests for pattern matching (including escaped quotes, unicode, spaces in paths)
+### Additional MVP Feature ([DONE])
 
-**Week 2: Core Features**
-
-- [ ] Implement Document Link Provider
-- [ ] Implement basic path resolution
-- [ ] Implement ghost text decoration rendering
-- [ ] Implement command: `mkdocsLens.toggleAllPreviews`
-
-**Week 3: Polish & Testing**
-
-- [ ] Implement diagnostic error handling
-- [ ] Add configuration settings
-- [ ] Integration tests on all platforms (GitHub Actions matrix: Windows, macOS, Linux)
-- [ ] Performance testing with 50+ snippets in one file
-- [ ] Test with large snippet files (1MB+)
-- [ ] Document manual test scenarios checklist:
-  - Large files (>20 lines)
-  - Missing files
-  - Various path types (absolute, relative, workspace-relative)
-  - Toggle command behavior
-  - Empty/single-line files
-  - Path resolution precedence edge cases
-- [ ] Fix bugs, improve error messages
-
-**Week 4: Documentation & Release**
-
-- [ ] Create test fixtures repository/folder for manual testing
-- [ ] Record demo GIF/video for README
-- [ ] Write README with:
-  - Installation instructions
-  - Basic usage example with screenshots
-  - Configuration reference
-  - Known limitations (regex edge cases, synchronous loading)
-  - Contributing/license info
-- [ ] Manual testing on all platforms (follow documented checklist from Week 3)
-- [ ] Verify CI/CD pipeline working
-- [ ] Merge release-please PR for v0.1.0
-- [ ] Verify GitHub release created automatically
+- [x] Implement hover tooltips for snippet content (truncated preview, matches ghost
+  text behavior)
 
 ### MVP Success Metrics
 
