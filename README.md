@@ -1,4 +1,9 @@
+
 # MkDocs Snippet Lens
+
+[![VS Code Marketplace](https://img.shields.io/visual-studio-marketplace/v/main-branch.mkdocs-snippet-lens?label=VS%20Code%20Marketplace)](https://marketplace.visualstudio.com/items?itemName=main-branch.mkdocs-snippet-lens)
+[![Open VSX](https://img.shields.io/open-vsx/v/main-branch/mkdocs-snippet-lens?label=Open%20VSX&logo=openvsx)](https://open-vsx.org/extension/main-branch/mkdocs-snippet-lens)
+[![GitHub Releases](https://img.shields.io/github/v/release/main-branch/mkdocs-snippet-lens?label=GitHub%20Releases)](https://github.com/main-branch/mkdocs-snippet-lens/releases/latest)
 
 [![Continuous Integration](https://github.com/main-branch/mkdocs-snippet-lens/actions/workflows/continuous-integration.yml/badge.svg)](https://github.com/main-branch/mkdocs-snippet-lens/actions/workflows/continuous-integration.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -14,9 +19,16 @@ diagnostics for MkDocs `--8<--` snippet references in Markdown files.
 - **Error Diagnostics**: Get immediate feedback when snippet files are missing
 - **Hover Previews**: View full snippet content on hover
 
+
 ## Installation
 
-Install from the VS Code Marketplace or build from source.
+You can install MkDocs Snippet Lens from any of these sources:
+
+- [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=main-branch.mkdocs-snippet-lens)
+- [Open VSX Registry](https://open-vsx.org/extension/main-branch/mkdocs-snippet-lens)
+- [Download latest VSIX from GitHub Releases](https://github.com/main-branch/mkdocs-snippet-lens/releases/latest)
+
+Or build from source.
 
 ## Extension Settings
 
