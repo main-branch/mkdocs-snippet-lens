@@ -4,6 +4,13 @@ All notable changes to the "mkdocs-snippet-lens" extension will be documented in
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [0.0.8](https://github.com/main-branch/mkdocs-snippet-lens/compare/v0.0.7...v0.0.8) (2025-12-13)
+
+
+### Documentation
+
+* Add badges and install links for VS Code Marketplace, Open VSX, and GitHub Releases ([909273c](https://github.com/main-branch/mkdocs-snippet-lens/commit/909273cbba260033eaebe712444991492a7ce417))
+
 ## [0.0.7](https://github.com/main-branch/mkdocs-snippet-lens/compare/v0.0.6...v0.0.7) (2025-12-12)
 
 
