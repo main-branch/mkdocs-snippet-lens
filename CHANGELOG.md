@@ -4,6 +4,18 @@ All notable changes to the "mkdocs-snippet-lens" extension will be documented in
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [0.1.0](https://github.com/main-branch/mkdocs-snippet-lens/compare/v0.0.8...v0.1.0) (2025-12-14)
+
+
+### Features
+
+* **docs:** Clarify planned features in README and roadmap for v0.1.0 [release-please-semver:minor] ([17a4466](https://github.com/main-branch/mkdocs-snippet-lens/commit/17a44663ee8b60e30f501d579eb78c71e1c291be))
+
+
+### Documentation
+
+* Update project management files for MVP release ([82ddf2a](https://github.com/main-branch/mkdocs-snippet-lens/commit/82ddf2a3fb3720fe836709ae4a776092500c207d))
+
 ## [0.0.8](https://github.com/main-branch/mkdocs-snippet-lens/compare/v0.0.7...v0.0.8) (2025-12-13)
 
 
