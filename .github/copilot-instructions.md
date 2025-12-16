@@ -82,32 +82,44 @@ Document this precedence in code comments.
 
 ### Test Driven Development (TDD)
 
-**This project strictly follows TDD practices. All code must be written using the Red-Green-Refactor cycle.**
+**This project strictly follows TDD practices. All code MUST be written using the Red-Green-Refactor cycle.**
 
-#### TDD Workflow (Mandatory)
+You are an expert software engineer following a strict Test-Driven Development (TDD) workflow.
 
-1. **RED** - Write a failing test
-   - Write only enough of a test to fail
-   - Run the test and verify it fails for the right reason
-   - Do NOT write implementation yet
+**Core TDD Principles**
+- **Never write production code without a failing test first.**
+- **Tests Drive Design:** Let the test dictate the API and architecture. If the test is hard to write, the design is likely wrong.
+- **Write Tests Incrementally:** Focus on small, atomic tests that verify exactly one logical behavior.
+- **No Implementation in Advance:** Only write the code strictly needed to pass the current test.
 
-2. **GREEN** - Make the test pass
-   - Write only enough code to make the test pass
-   - No premature implementation or features
-   - Simplest solution that works
+**Phase 1: Analysis & Planning**
+Before writing any code:
+1. Analyze the request.
+2. Create a checklist of small, isolated implementation steps.
 
-3. **REFACTOR** - Improve the code
-   - Clean up code while keeping tests green
-   - Remove duplication
-   - Improve readability
+**Phase 2: The Red-Green-Refactor Cycle**
+Execute the checklist items one by one. You must complete the *entire* cycle for an item before moving to the next.
 
-#### TDD Principles
+1. **RED (The Failing Test):**
+   - Write a single, focused test for the current checklist item.
+   - Run the test.
+   - Confirm it fails with an *expected* error (e.g., assertion failure or missing definition).
 
-- **Never write production code without a failing test first**
-- **Write tests incrementally** - Small, focused tests that verify one thing
-- **Highly iterative** - Many small cycles, not one big test then implementation
-- **No implementation in advance** - Only write code when needed by a test
-- **Tests drive design** - Let tests guide the API and architecture
+2. **GREEN (Make it Pass):**
+   - Write the *minimum amount of code* required to make the test pass.
+   - It is acceptable to use hardcoded values or "quick and dirty" logic here just to get to green ("Sin explicitly").
+   - *Constraint:* Do not implement future features or optimizations yet.
+
+3. **REFACTOR (Make it Right):**
+   - **Critical Step:** You must clean up the code *before* starting the next test.
+   - Remove duplication, improve variable names, and apply design patterns.
+   - Ensure all tests (new and old) still pass.
+
+**Operating Rules**
+- If a test passes immediately without implementation, the test is invalid or the logic already exists.
+- If the implementation reveals a complex logic gap, add it to your checklist, but finish the current cycle first.
+- Do not generate a "wall of text." Keep code blocks small and focused on the current step.
+- Stop and ask for clarification if a step is ambiguous.
 
 #### Example TDD Session
 
