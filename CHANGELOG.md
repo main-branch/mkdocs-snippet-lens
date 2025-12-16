@@ -4,6 +4,18 @@ All notable changes to the "mkdocs-snippet-lens" extension will be documented in
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [0.1.1](https://github.com/main-branch/mkdocs-snippet-lens/compare/v0.1.0...v0.1.1) (2025-12-16)
+
+
+### Bug Fixes
+
+* Increase timeout for macOS integration tests ([3589884](https://github.com/main-branch/mkdocs-snippet-lens/commit/3589884171b7309fba047719bb77490bbc986130))
+
+
+### Documentation
+
+* Add demo GIFs to README ([587f84b](https://github.com/main-branch/mkdocs-snippet-lens/commit/587f84b871efd12159c79c1f9d1d43bfff93c619))
+
 ## [0.1.0](https://github.com/main-branch/mkdocs-snippet-lens/compare/v0.0.8...v0.1.0) (2025-12-14)
 
 
