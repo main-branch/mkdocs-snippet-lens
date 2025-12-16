@@ -25,9 +25,19 @@ export class SnippetLocator {
 		const usedPositions = new Set<number>();
 
 		for (const snippet of snippets) {
+			// Build the full reference string (path + optional section/line range)
+			let fullRef = snippet.path;
+			if (snippet.section) {
+				fullRef += ':' + snippet.section;
+			} else if (snippet.lines) {
+				fullRef += ':' + snippet.lines.start + ':' + snippet.lines.end;
+			} else if (snippet.lineRanges) {
+				fullRef += ':' + snippet.lineRanges.map(r => `${r.start}:${r.end}`).join(',');
+			}
+
 			// Try double quotes first
-			const doubleQuotePattern = `--8<-- "${snippet.path}"`;
-			const singleQuotePattern = `--8<-- '${snippet.path}'`;
+			const doubleQuotePattern = `--8<-- "${fullRef}"`;
+			const singleQuotePattern = `--8<-- '${fullRef}'`;
 
 			let index = -1;
 			let searchStart = 0;

@@ -250,47 +250,77 @@ Requirement implementation status is marked as follows:
 ### 2.1 Snippet Detection
 
 - **[DONE] Pattern Matching:** Detects `--8<-- "path/to/file.ext"` and `--8<--
-  'path/to/file.ext'` (entire file only). Named sections, line ranges, and multiple
-  ranges are **[Planned]**.
+  'path/to/file.ext'` syntax including named sections (`:section`), explicit line
+  ranges (`:start:end`), and multiple ranges (`:1:3,5:7`). Block format, start-only
+  ranges, end-only ranges, negative indexes, disabled/escaped snippets, and URL
+  snippets are **[Planned]**.
 - **[DONE] Trigger Events:** Detection occurs on file open and save. Debounced live
   typing detection is **[Planned]**.
 
 - **Pattern Matching:** The extension must actively scan open Markdown (`.md`) files
   for the standard MkDocs snippet syntax:
-  - Syntax variations:
+  - **Single Line Format (DONE):**
     - `--8<-- "path/to/file.ext"` - entire file
     - `--8<-- "path/to/file.ext:name"` - named section
-    - `--8<-- "path/to/file.ext:start:end"` - line numbers
+    - `--8<-- "path/to/file.ext:start:end"` - explicit line range
+    - `--8<-- "path/to/file.ext:1:3,5:6"` - multiple line ranges
+  - **Single Line Format (Planned v0.2.0+):**
+    - `--8<-- "file.ext:5"` - from line 5 to end
+    - `--8<-- "file.ext::10"` - from start to line 10
+    - `--8<-- "file.ext:-5"` - last 5 lines (negative indexing)
+    - `--8<-- "; disabled.md"` - disabled snippet (semicolon prefix)
+    - `;--8<-- "escaped.md"` - escaped snippet syntax (shows literally)
+    - `--8<-- "https://example.com/file.md"` - URL snippet
+  - **Block Format (Planned v0.2.0+):**
+    ```markdown
+    --8<--
+    file1.md
+    file2.md
+    ; disabled.md
+    --8<--
+    ```
   - **Examples:**
 
     ```markdown
-    <!-- Include entire file -->
+    <!-- Include entire file (DONE) -->
     --8<-- "src/hello.py"
     --8<-- 'ch07/counter/counter.go'
 
-    <!-- Include named section -->
+    <!-- Include named section (DONE) -->
     --8<-- "src/example.py:func"
     --8<-- "config.yaml:database-config"
 
-    <!-- Include specific line ranges -->
+    <!-- Include specific line ranges (DONE) -->
     --8<-- "main.py:10:20"
-    --8<-- "utils.js:5"
-    --8<-- "readme.md::15"
     --8<-- "test.py:1:3,5:6"
+
+    <!-- Advanced line ranges (PLANNED) -->
+    --8<-- "utils.js:5"       # from line 5 to end
+    --8<-- "readme.md::15"    # from start to line 15
+    --8<-- "config.py:-10"    # last 10 lines
+
+    <!-- Block format (PLANNED) -->
+    --8<--
+    file1.md
+    file2.md:section
+    --8<--
     ```
 
-  - **Named Section Markers:**
+  - **Named Section Markers (DONE in v0.1.1):**
     - Defined in source files as `--8<-- [start:name]` and `--8<-- [end:name]`
     - Section name can contain letters, numbers, hyphens, and underscores
     - Markers can be embedded in comments (e.g., `# --8<-- [start:func]` in Python)
     - Both start and end markers are required and matched by name
     - The lines containing the markers themselves are excluded from the snippet
   - **Line Number Ranges:**
-    - `file.ext:5` - from line 5 to end of file
-    - `file.ext::10` - from line 1 to line 10
-    - `file.ext:5:10` - from line 5 to line 10 (inclusive)
-    - `file.ext:1:3,5:6` - multiple ranges (lines 1-3 and 5-6)
-    - Negative indexes supported (e.g., `file.ext:-5` for last 5 lines)
+    - **DONE in v0.1.1:**
+      - `file.ext:5:10` - from line 5 to line 10 (explicit start and end)
+      - `file.ext:1:3,5:6` - multiple ranges (lines 1-3 and 5-6)
+    - **Planned for v0.2.0:**
+      - `file.ext:5` - from line 5 to end of file
+      - `file.ext::10` - from line 1 to line 10
+      - `file.ext:-5` - last 5 lines (negative indexing)
+      - `file.ext:-10:-1` - lines from 10th-last to last line
     - Line numbers are 1-based (0 is clamped to 1)
   - Must support both single quotes `'` and double quotes `"`.
   - Must handle relative paths (relative to the current file or a configured base).

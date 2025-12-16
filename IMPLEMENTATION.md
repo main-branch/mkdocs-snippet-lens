@@ -145,7 +145,7 @@ features to deliver value incrementally while managing complexity and risk.
 | Release | Target Date | Focus | Key Deliverables |
 |---------|-------------|-------|------------------|
 | v0.1.0 (MVP) | Week 4 | Core functionality proof-of-concept | Basic snippet detection, file links, simple previews |
-| v0.2.0 | Week 8 | Enhanced previews | Named sections, line ranges, improved UX |
+| v0.2.0 | Week 8 | Advanced syntax & UX | Complete line range syntax, block format, disabled/escaped snippets, URL snippets, per-snippet toggles |
 | v0.3.0 | Week 12 | Robustness | Recursive snippets, auto-refresh, error handling |
 | v1.0.0 | Week 16 | Production ready | Security hardening, performance optimization, documentation |
 | v1.1.0+ | Future | Advanced features | Multi-root workspaces, advanced settings, accessibility |
@@ -183,12 +183,20 @@ technical foundation.
 - Scans only `.md` files.
 - Uses basic regex pattern.
 
+**Completed Beyond MVP Scope:**
+
+- ✅ Named sections (`:section_name`) - Added in v0.1.1
+- ✅ Explicit line ranges (`:start:end`) - Added in v0.1.1
+- ✅ Multiple ranges (`:1:3,5:6`) - Added in v0.1.1
+
 **Out of Scope for v0.1:**
 
-- Named sections (`:section_name`)
-- Line ranges (`:start:end`)
-- Multiple ranges (`:1:3,5:6`)
-- Negative indexes
+- Start-only ranges (`:5`), end-only ranges (`::10`)
+- Negative indexes (`:-5`)
+- Block format (`--8<--\nfile1.md\nfile2.md\n--8<--`)
+- Disabled snippets (`--8<-- "; file.md"`)
+- Escaped snippets (`;--8<-- "file.md"`)
+- URL snippets (`--8<-- "https://...")`)
 - Recursive snippet expansion
 
 **Implementation Notes:**
@@ -393,23 +401,30 @@ technical foundation.
 
 ## v0.2.0 - Enhanced Previews
 
-**Goal:** Add advanced snippet syntax support and improve user experience.
+**Goal:** Complete advanced snippet syntax support and enhance user experience with per-snippet controls.
 
 **Timeline:** 4 weeks (Weeks 5-8)
 
 **Success Criteria:**
 
-- Named sections work correctly
-- Line ranges work correctly
+- All MkDocs snippet syntax variations supported (except recursive expansion)
+- Block format works correctly
+- Start-only, end-only, and negative index ranges work correctly
+- Disabled and escaped snippets handled properly
+- URL snippets functional with proper caching and error handling
 - Per-snippet toggles implemented
 - Code coverage == 100%
 - Tests fail if coverage < 100%
 
 ### Features In Scope
 
-#### 1. Named Section Support
+#### 1. Named Section Support [DONE in v0.1.1]
+
+**Note:** Named sections were implemented ahead of schedule in v0.1.1.
 
 **Description:** Support `--8<-- "file.ext:section_name"` syntax.
+
+**Status:** ✅ Complete - see CHANGELOG.md v0.1.1
 
 **Requirements:**
 
@@ -431,22 +446,20 @@ technical foundation.
 - Test various comment styles (Python, JavaScript, YAML, etc.)
 - Test missing/mismatched section markers
 
-#### 2. Line Range Support
+#### 2. Advanced Line Range Support
 
-**Description:** Support `--8<-- "file.ext:start:end"` syntax.
+**Description:** Complete remaining line range syntax variations.
 
 **Requirements:**
 
-- Single line to end: `file.ext:5`
-- Start to line: `file.ext::10`
-- Specific range: `file.ext:5:10`
+- **Start-only ranges:** `file.ext:5` (line 5 to end)
+- **End-only ranges:** `file.ext::10` (start to line 10)
+- **Negative indexes:** `file.ext:-5` (last 5 lines), `file.ext:-10:-1` (range from end)
 - 1-based line numbers (0 clamped to 1)
+- Negative indexes converted to positive based on file line count
 - Show diagnostic if range out of bounds
 
-**Out of Scope for v0.2:**
-
-- Multiple ranges (`:1:3,5:6`)
-- Negative indexes (`:−5`)
+**Note:** Explicit ranges (`:5:10`) and multiple ranges (`:1:3,5:6`) were completed in v0.1.1.
 
 **Implementation Notes:**
 
@@ -488,7 +501,112 @@ technical foundation.
 - Test multiple snippets in same file
 - Test context key updates
 
-#### 4. Configurable Preview Length
+#### 4. Block Format Support
+
+**Description:** Support multi-file block format syntax.
+
+**Syntax:**
+```markdown
+--8<--
+file1.md
+file2.md:section
+file3.md:10:20
+; disabled.md
+--8<--
+```
+
+**Requirements:**
+
+- Detect block format with opening and closing `--8<--` on separate lines
+- Process each file path on its own line
+- Support all single-line syntax features (sections, ranges, etc.)
+- Support disabled files with `;` prefix
+- Handle empty lines within block (preserve in output per MkDocs behavior)
+
+**Implementation Notes:**
+
+- Update regex to detect block format
+- Parse content between markers line-by-line
+- Create multiple snippet locations for each file in block
+
+**Testing:**
+
+- Unit tests for block format detection
+- Test with mixed file types and syntax
+- Test disabled files within block
+
+#### 5. Disabled and Escaped Snippets
+
+**Description:** Support temporarily disabling and escaping snippet syntax.
+
+**Syntax:**
+- **Disabled:** `--8<-- "; skip.md"` (semicolon before filename)
+- **Escaped:** `;--8<-- "example.md"` (semicolon before scissors, shows literally)
+
+**Requirements:**
+
+- Disabled snippets are detected but not processed (no link, no preview)
+- Escaped snippets pass through with first `;` removed, shown as plain text
+- Works in both single-line and block format
+
+**Implementation Notes:**
+
+- Update regex to detect `;` prefix
+- Skip processing for disabled snippets
+- Render escaped syntax literally in preview
+
+**Testing:**
+
+- Unit tests for disabled/escaped detection
+- Test in single-line and block formats
+- Verify escaped syntax renders correctly
+
+#### 6. URL Snippets
+
+**Description:** Support including content from remote URLs.
+
+**Syntax:**
+```markdown
+--8<-- "https://raw.githubusercontent.com/user/repo/main/file.md"
+```
+
+**Requirements:**
+
+- Download content from HTTP/HTTPS URLs
+- Apply configurable timeout (default: 10 seconds)
+- Apply configurable max size (default: ~32 MiB)
+- Show diagnostic on download failure
+- Cache downloaded content (memory + disk)
+- Support all line range/section syntax with URLs
+- Nested snippets within URL content must also be URLs (no local files)
+
+**Security Considerations:**
+
+- Validate URL schemes (only http/https)
+- Respect max size limits
+- Handle timeouts gracefully
+- Consider workspace trust settings
+
+**Implementation Notes:**
+
+- Use VS Code's fetch API or Node.js https module
+- Implement download cache with TTL
+- Add configuration settings for timeout/size
+- Path resolver must distinguish URLs from local paths
+
+**Testing:**
+
+- Unit tests for URL detection
+- Integration tests with mock HTTP server
+- Test timeout and size limit enforcement
+- Test nested snippet restrictions
+
+**Out of Scope for v0.2.0:**
+
+- Retry logic for failed downloads (planned for v0.3.0)
+- Custom HTTP headers (planned for v0.3.0)
+
+#### 7. Configurable Preview Length
 
 **Description:** Make preview line limit configurable.
 

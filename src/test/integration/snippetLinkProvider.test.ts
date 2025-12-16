@@ -28,4 +28,67 @@ suite('SnippetLinkProvider', () => {
 		const actualPath = path.normalize(links![0].target!.fsPath);
 		assert.strictEqual(actualPath, expectedPath);
 	});
+
+	test('should provide document link for snippet with named section', () => {
+		const detector = new SnippetDetector();
+		const resolver = new PathResolver(() => true);
+		const locator = new SnippetLocator();
+		const provider = new SnippetLinkProvider(detector, resolver, locator);
+
+		const document = {
+			getText: () => '--8<-- "path/to/file.txt:my_section"',
+			uri: vscode.Uri.file('/workspace/docs/guide.md'),
+			positionAt: (offset: number) => new vscode.Position(0, offset),
+		} as vscode.TextDocument;
+
+		const links = provider.provideDocumentLinks(document);
+
+		assert.strictEqual(links?.length, 1);
+		assert.ok(links![0].target);
+		const expectedPath = path.normalize('/workspace/docs/path/to/file.txt');
+		const actualPath = path.normalize(links![0].target!.fsPath);
+		assert.strictEqual(actualPath, expectedPath);
+	});
+
+	test('should provide document link for snippet with line range', () => {
+		const detector = new SnippetDetector();
+		const resolver = new PathResolver(() => true);
+		const locator = new SnippetLocator();
+		const provider = new SnippetLinkProvider(detector, resolver, locator);
+
+		const document = {
+			getText: () => '--8<-- "path/to/file.txt:10:20"',
+			uri: vscode.Uri.file('/workspace/docs/guide.md'),
+			positionAt: (offset: number) => new vscode.Position(0, offset),
+		} as vscode.TextDocument;
+
+		const links = provider.provideDocumentLinks(document);
+
+		assert.strictEqual(links?.length, 1);
+		assert.ok(links![0].target);
+		const expectedPath = path.normalize('/workspace/docs/path/to/file.txt');
+		const actualPath = path.normalize(links![0].target!.fsPath);
+		assert.strictEqual(actualPath, expectedPath);
+	});
+
+	test('should provide document link for snippet with multiple line ranges', () => {
+		const detector = new SnippetDetector();
+		const resolver = new PathResolver(() => true);
+		const locator = new SnippetLocator();
+		const provider = new SnippetLinkProvider(detector, resolver, locator);
+
+		const document = {
+			getText: () => '--8<-- "path/to/file.txt:1:3,5:7"',
+			uri: vscode.Uri.file('/workspace/docs/guide.md'),
+			positionAt: (offset: number) => new vscode.Position(0, offset),
+		} as vscode.TextDocument;
+
+		const links = provider.provideDocumentLinks(document);
+
+		assert.strictEqual(links?.length, 1);
+		assert.ok(links![0].target);
+		const expectedPath = path.normalize('/workspace/docs/path/to/file.txt');
+		const actualPath = path.normalize(links![0].target!.fsPath);
+		assert.strictEqual(actualPath, expectedPath);
+	});
 });

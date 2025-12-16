@@ -210,5 +210,120 @@ describe('PreviewContentCreator', () => {
 			// line indicator added (making it 61 chars), then char limit cuts it back to 40 + '...'
 			assert.strictEqual(result, 'First line content ⏎ Second line content...');
 		});
+
+		it('should extract content from a named section', () => {
+			const location: SnippetLocation = {
+				snippet: { path: 'test.md', section: 'my_section' },
+				startOffset: 0,
+				endOffset: 10,
+				lineEndOffset: 10
+			};
+			const resolver = new PathResolver(() => true);
+			const readFile = () =>
+				'Before section\n' +
+				'--8<-- [start:my_section]\n' +
+				'Section line 1\n' +
+				'Section line 2\n' +
+				'--8<-- [end:my_section]\n' +
+				'After section';
+
+			const result = createPreviewContent(
+				location,
+				'/docs/main.md',
+				'/workspace',
+				'',
+				20,
+				200,
+				resolver,
+				readFile
+			);
+
+			assert.strictEqual(result, 'Section line 1 ⏎ Section line 2');
+		});
+
+		it('should return full content when named section is not found', () => {
+			const location: SnippetLocation = {
+				snippet: { path: 'test.md', section: 'missing_section' },
+				startOffset: 0,
+				endOffset: 10,
+				lineEndOffset: 10
+			};
+			const resolver = new PathResolver(() => true);
+			const readFile = () =>
+				'Line 1\n' +
+				'Line 2\n' +
+				'Line 3';
+
+			const result = createPreviewContent(
+				location,
+				'/docs/main.md',
+				'/workspace',
+				'',
+				20,
+				200,
+				resolver,
+				readFile
+			);
+
+			assert.strictEqual(result, 'Line 1 ⏎ Line 2 ⏎ Line 3');
+		});
+
+		it('should extract content from a line range', () => {
+			const location: SnippetLocation = {
+				snippet: { path: 'test.md', lines: { start: 2, end: 4 } },
+				startOffset: 0,
+				endOffset: 10,
+				lineEndOffset: 10
+			};
+			const resolver = new PathResolver(() => true);
+			const readFile = () =>
+				'Line 1\n' +
+				'Line 2\n' +
+				'Line 3\n' +
+				'Line 4\n' +
+				'Line 5';
+
+			const result = createPreviewContent(
+				location,
+				'/docs/main.md',
+				'/workspace',
+				'',
+				20,
+				200,
+				resolver,
+				readFile
+			);
+
+			assert.strictEqual(result, 'Line 2 ⏎ Line 3 ⏎ Line 4');
+		});
+
+		it('should extract content from multiple line ranges', () => {
+			const location: SnippetLocation = {
+				snippet: { path: 'test.md', lineRanges: [{ start: 1, end: 2 }, { start: 4, end: 5 }] },
+				startOffset: 0,
+				endOffset: 10,
+				lineEndOffset: 10
+			};
+			const resolver = new PathResolver(() => true);
+			const readFile = () =>
+				'Line 1\n' +
+				'Line 2\n' +
+				'Line 3\n' +
+				'Line 4\n' +
+				'Line 5';
+
+			const result = createPreviewContent(
+				location,
+				'/docs/main.md',
+				'/workspace',
+				'',
+				20,
+				200,
+				resolver,
+				readFile
+			);
+
+			assert.strictEqual(result, 'Line 1 ⏎ Line 2 ⏎ Line 4 ⏎ Line 5');
+		});
 	});
 });
