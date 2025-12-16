@@ -13,13 +13,24 @@ diagnostics for MkDocs `--8<--` snippet references in Markdown files.
 
 ## Features
 
-- **Inline Previews**: See snippet content directly in your editor without opening the
-  file
+- **Inline Previews**: See snippet content directly in your editor without opening the file
 - **Clickable Links**: Navigate to snippet files with a single click
 - **Error Diagnostics**: Get immediate feedback when snippet files are missing
 - **Hover Previews**: View full snippet content on hover
 
-**Planned Features:**
+### Clickable Links & Inline Previews
+
+<p align="center">
+  <img src="./images/example01.gif" alt="Example showing basic snippet lens functionality" style="max-width: 700px; width: 100%;">
+</p>
+
+### Error Diagnostics
+
+<p align="center">
+  <img src="./images/example02.gif" alt="Example showing how missing snippet files are handled" style="max-width: 700px; width: 100%;">
+</p>
+
+### Planned Features
 
 - Named sections, line ranges, multiple ranges, negative indexes (advanced snippet syntax)
 - Recursive snippet expansion and circular reference detection
