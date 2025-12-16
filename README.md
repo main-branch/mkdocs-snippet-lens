@@ -21,19 +21,31 @@ diagnostics for MkDocs `--8<--` snippet references in Markdown files.
 ### Clickable Links & Inline Previews
 
 <p align="center">
-  <img src="./images/example01.gif" alt="Example showing basic snippet lens functionality" style="max-width: 700px; width: 100%;">
+  <img
+    src="./images/example01.gif"
+    alt="Example showing basic snippet lens functionality"
+    style="max-width: 700px; width: 100%;"
+  >
 </p>
 
 ### Error Diagnostics
 
 <p align="center">
-  <img src="./images/example02.gif" alt="Example showing how missing snippet files are handled" style="max-width: 700px; width: 100%;">
+  <img
+    src="./images/example02.gif"
+    alt="Example showing how missing snippet files are handled"
+    style="max-width: 700px; width: 100%;"
+  >
 </p>
 
 ### Planned Features
 
-- Named sections, line ranges, multiple ranges, negative indexes (advanced snippet syntax)
+- Advanced line range syntax (start-only, end-only, negative indexes)
+- Block format for multiple file inclusion
+- Disabled and escaped snippet references
+- URL snippets (include content from remote URLs)
 - Recursive snippet expansion and circular reference detection
+- Per-snippet preview toggles with CodeLens
 - Performance and scalability for a large number of snippets or large snippet files
 - Advanced error handling (invalid paths, permissions, section markers, recursion)
 - Accessibility and i18n support
