@@ -83,5 +83,45 @@ describe('SnippetLocator', () => {
 
 			assert.strictEqual(locations.length, 0);
 		});
+
+		it('should locate snippet with named section', () => {
+			const locator = new SnippetLocator();
+			const text = '--8<-- "path/to/file.txt:my_section"';
+			const snippets = [{ path: 'path/to/file.txt', section: 'my_section' }];
+
+			const locations = locator.locateSnippets(text, snippets);
+
+			assert.strictEqual(locations.length, 1);
+			// The link should still only underline the path portion
+			assert.strictEqual(text.substring(locations[0].startOffset, locations[0].endOffset), 'path/to/file.txt');
+			assert.strictEqual(locations[0].snippet.path, 'path/to/file.txt');
+			assert.strictEqual(locations[0].snippet.section, 'my_section');
+		});
+
+		it('should locate snippet with line range', () => {
+			const locator = new SnippetLocator();
+			const text = '--8<-- "path/to/file.txt:10:20"';
+			const snippets = [{ path: 'path/to/file.txt', lines: { start: 10, end: 20 } }];
+
+			const locations = locator.locateSnippets(text, snippets);
+
+			assert.strictEqual(locations.length, 1);
+			assert.strictEqual(text.substring(locations[0].startOffset, locations[0].endOffset), 'path/to/file.txt');
+			assert.strictEqual(locations[0].snippet.path, 'path/to/file.txt');
+			assert.deepStrictEqual(locations[0].snippet.lines, { start: 10, end: 20 });
+		});
+
+		it('should locate snippet with multiple line ranges', () => {
+			const locator = new SnippetLocator();
+			const text = '--8<-- "path/to/file.txt:1:3,5:7"';
+			const snippets = [{ path: 'path/to/file.txt', lineRanges: [{ start: 1, end: 3 }, { start: 5, end: 7 }] }];
+
+			const locations = locator.locateSnippets(text, snippets);
+
+			assert.strictEqual(locations.length, 1);
+			assert.strictEqual(text.substring(locations[0].startOffset, locations[0].endOffset), 'path/to/file.txt');
+			assert.strictEqual(locations[0].snippet.path, 'path/to/file.txt');
+			assert.deepStrictEqual(locations[0].snippet.lineRanges, [{ start: 1, end: 3 }, { start: 5, end: 7 }]);
+		});
 	});
 });
