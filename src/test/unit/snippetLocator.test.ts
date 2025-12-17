@@ -2,126 +2,126 @@ import * as assert from 'assert';
 import { SnippetLocator } from '../../snippetLocator';
 
 describe('SnippetLocator', () => {
-	describe('locateSnippets', () => {
-		it('should locate snippet with double quotes', () => {
-			const locator = new SnippetLocator();
-			const text = '--8<-- "path/to/file.txt"';
-			const snippets = [{ path: 'path/to/file.txt' }];
+  describe('locateSnippets', () => {
+    it('should locate snippet with double quotes', () => {
+      const locator = new SnippetLocator();
+      const text = '--8<-- "path/to/file.txt"';
+      const snippets = [{ path: 'path/to/file.txt' }];
 
-			const locations = locator.locateSnippets(text, snippets);
+      const locations = locator.locateSnippets(text, snippets);
 
-			assert.strictEqual(locations.length, 1);
-			// Verify the link underlines exactly the path, not the quotes
-			assert.strictEqual(text.substring(locations[0].startOffset, locations[0].endOffset), 'path/to/file.txt');
-			assert.strictEqual(locations[0].startOffset, 8); // After '--8<-- "'
-			assert.strictEqual(locations[0].endOffset, 24); // 8 + 16 (length of path only)
-			assert.strictEqual(locations[0].snippet.path, 'path/to/file.txt');
-		});
+      assert.strictEqual(locations.length, 1);
+      // Verify the link underlines exactly the path, not the quotes
+      assert.strictEqual(text.substring(locations[0].startOffset, locations[0].endOffset), 'path/to/file.txt');
+      assert.strictEqual(locations[0].startOffset, 8); // After '--8<-- "'
+      assert.strictEqual(locations[0].endOffset, 24); // 8 + 16 (length of path only)
+      assert.strictEqual(locations[0].snippet.path, 'path/to/file.txt');
+    });
 
-		it('should locate snippet with single quotes', () => {
-			const locator = new SnippetLocator();
-			const text = "--8<-- 'path/to/file.txt'";
-			const snippets = [{ path: 'path/to/file.txt' }];
+    it('should locate snippet with single quotes', () => {
+      const locator = new SnippetLocator();
+      const text = "--8<-- 'path/to/file.txt'";
+      const snippets = [{ path: 'path/to/file.txt' }];
 
-			const locations = locator.locateSnippets(text, snippets);
+      const locations = locator.locateSnippets(text, snippets);
 
-			assert.strictEqual(locations.length, 1);
-			// Verify the link underlines exactly the path, not the quotes
-			assert.strictEqual(text.substring(locations[0].startOffset, locations[0].endOffset), 'path/to/file.txt');
-			assert.strictEqual(locations[0].startOffset, 8);
-		});
+      assert.strictEqual(locations.length, 1);
+      // Verify the link underlines exactly the path, not the quotes
+      assert.strictEqual(text.substring(locations[0].startOffset, locations[0].endOffset), 'path/to/file.txt');
+      assert.strictEqual(locations[0].startOffset, 8);
+    });
 
-		it('should locate multiple snippets', () => {
-			const locator = new SnippetLocator();
-			const text = '--8<-- "file1.txt"\nSome text\n--8<-- "file2.txt"';
-			const snippets = [
-				{ path: 'file1.txt' },
-				{ path: 'file2.txt' }
-			];
+    it('should locate multiple snippets', () => {
+      const locator = new SnippetLocator();
+      const text = '--8<-- "file1.txt"\nSome text\n--8<-- "file2.txt"';
+      const snippets = [
+        { path: 'file1.txt' },
+        { path: 'file2.txt' }
+      ];
 
-			const locations = locator.locateSnippets(text, snippets);
+      const locations = locator.locateSnippets(text, snippets);
 
-			assert.strictEqual(locations.length, 2);
-			assert.strictEqual(locations[0].snippet.path, 'file1.txt');
-			assert.strictEqual(locations[1].snippet.path, 'file2.txt');
-		});
+      assert.strictEqual(locations.length, 2);
+      assert.strictEqual(locations[0].snippet.path, 'file1.txt');
+      assert.strictEqual(locations[1].snippet.path, 'file2.txt');
+    });
 
-		it('should locate duplicate snippets with same path', () => {
-			const locator = new SnippetLocator();
-			const text = '--8<-- "file.txt"\nSome text\n--8<-- "file.txt"';
-			const snippets = [{ path: 'file.txt' }, { path: 'file.txt' }];
+    it('should locate duplicate snippets with same path', () => {
+      const locator = new SnippetLocator();
+      const text = '--8<-- "file.txt"\nSome text\n--8<-- "file.txt"';
+      const snippets = [{ path: 'file.txt' }, { path: 'file.txt' }];
 
-			const locations = locator.locateSnippets(text, snippets);
+      const locations = locator.locateSnippets(text, snippets);
 
-			assert.strictEqual(locations.length, 2);
-			// First occurrence
-			assert.strictEqual(text.substring(locations[0].startOffset, locations[0].endOffset), 'file.txt');
-			assert.strictEqual(locations[0].startOffset, 8); // After '--8<-- "'
-			assert.strictEqual(locations[0].endOffset, 16); // 8 + 8 (length of path)
-			// Second occurrence
-			assert.strictEqual(text.substring(locations[1].startOffset, locations[1].endOffset), 'file.txt');
-			assert.strictEqual(locations[1].startOffset, 36); // After second '--8<-- "'
-			assert.strictEqual(locations[1].endOffset, 44); // 36 + 8 (length of path)
-		});
+      assert.strictEqual(locations.length, 2);
+      // First occurrence
+      assert.strictEqual(text.substring(locations[0].startOffset, locations[0].endOffset), 'file.txt');
+      assert.strictEqual(locations[0].startOffset, 8); // After '--8<-- "'
+      assert.strictEqual(locations[0].endOffset, 16); // 8 + 8 (length of path)
+      // Second occurrence
+      assert.strictEqual(text.substring(locations[1].startOffset, locations[1].endOffset), 'file.txt');
+      assert.strictEqual(locations[1].startOffset, 36); // After second '--8<-- "'
+      assert.strictEqual(locations[1].endOffset, 44); // 36 + 8 (length of path)
+    });
 
-		it('should return empty array when snippet not found in text', () => {
-			const locator = new SnippetLocator();
-			const text = 'No snippets here';
-			const snippets = [{ path: 'file.txt' }];
+    it('should return empty array when snippet not found in text', () => {
+      const locator = new SnippetLocator();
+      const text = 'No snippets here';
+      const snippets = [{ path: 'file.txt' }];
 
-			const locations = locator.locateSnippets(text, snippets);
+      const locations = locator.locateSnippets(text, snippets);
 
-			assert.strictEqual(locations.length, 0);
-		});
+      assert.strictEqual(locations.length, 0);
+    });
 
-		it('should handle empty snippets array', () => {
-			const locator = new SnippetLocator();
-			const text = '--8<-- "file.txt"';
-			const snippets: any[] = [];
+    it('should handle empty snippets array', () => {
+      const locator = new SnippetLocator();
+      const text = '--8<-- "file.txt"';
+      const snippets: any[] = [];
 
-			const locations = locator.locateSnippets(text, snippets);
+      const locations = locator.locateSnippets(text, snippets);
 
-			assert.strictEqual(locations.length, 0);
-		});
+      assert.strictEqual(locations.length, 0);
+    });
 
-		it('should locate snippet with named section', () => {
-			const locator = new SnippetLocator();
-			const text = '--8<-- "path/to/file.txt:my_section"';
-			const snippets = [{ path: 'path/to/file.txt', section: 'my_section' }];
+    it('should locate snippet with named section', () => {
+      const locator = new SnippetLocator();
+      const text = '--8<-- "path/to/file.txt:my_section"';
+      const snippets = [{ path: 'path/to/file.txt', section: 'my_section' }];
 
-			const locations = locator.locateSnippets(text, snippets);
+      const locations = locator.locateSnippets(text, snippets);
 
-			assert.strictEqual(locations.length, 1);
-			// The link should still only underline the path portion
-			assert.strictEqual(text.substring(locations[0].startOffset, locations[0].endOffset), 'path/to/file.txt');
-			assert.strictEqual(locations[0].snippet.path, 'path/to/file.txt');
-			assert.strictEqual(locations[0].snippet.section, 'my_section');
-		});
+      assert.strictEqual(locations.length, 1);
+      // The link should still only underline the path portion
+      assert.strictEqual(text.substring(locations[0].startOffset, locations[0].endOffset), 'path/to/file.txt');
+      assert.strictEqual(locations[0].snippet.path, 'path/to/file.txt');
+      assert.strictEqual(locations[0].snippet.section, 'my_section');
+    });
 
-		it('should locate snippet with line range', () => {
-			const locator = new SnippetLocator();
-			const text = '--8<-- "path/to/file.txt:10:20"';
-			const snippets = [{ path: 'path/to/file.txt', lines: { start: 10, end: 20 } }];
+    it('should locate snippet with line range', () => {
+      const locator = new SnippetLocator();
+      const text = '--8<-- "path/to/file.txt:10:20"';
+      const snippets = [{ path: 'path/to/file.txt', lines: { start: 10, end: 20 } }];
 
-			const locations = locator.locateSnippets(text, snippets);
+      const locations = locator.locateSnippets(text, snippets);
 
-			assert.strictEqual(locations.length, 1);
-			assert.strictEqual(text.substring(locations[0].startOffset, locations[0].endOffset), 'path/to/file.txt');
-			assert.strictEqual(locations[0].snippet.path, 'path/to/file.txt');
-			assert.deepStrictEqual(locations[0].snippet.lines, { start: 10, end: 20 });
-		});
+      assert.strictEqual(locations.length, 1);
+      assert.strictEqual(text.substring(locations[0].startOffset, locations[0].endOffset), 'path/to/file.txt');
+      assert.strictEqual(locations[0].snippet.path, 'path/to/file.txt');
+      assert.deepStrictEqual(locations[0].snippet.lines, { start: 10, end: 20 });
+    });
 
-		it('should locate snippet with multiple line ranges', () => {
-			const locator = new SnippetLocator();
-			const text = '--8<-- "path/to/file.txt:1:3,5:7"';
-			const snippets = [{ path: 'path/to/file.txt', lineRanges: [{ start: 1, end: 3 }, { start: 5, end: 7 }] }];
+    it('should locate snippet with multiple line ranges', () => {
+      const locator = new SnippetLocator();
+      const text = '--8<-- "path/to/file.txt:1:3,5:7"';
+      const snippets = [{ path: 'path/to/file.txt', lineRanges: [{ start: 1, end: 3 }, { start: 5, end: 7 }] }];
 
-			const locations = locator.locateSnippets(text, snippets);
+      const locations = locator.locateSnippets(text, snippets);
 
-			assert.strictEqual(locations.length, 1);
-			assert.strictEqual(text.substring(locations[0].startOffset, locations[0].endOffset), 'path/to/file.txt');
-			assert.strictEqual(locations[0].snippet.path, 'path/to/file.txt');
-			assert.deepStrictEqual(locations[0].snippet.lineRanges, [{ start: 1, end: 3 }, { start: 5, end: 7 }]);
-		});
-	});
+      assert.strictEqual(locations.length, 1);
+      assert.strictEqual(text.substring(locations[0].startOffset, locations[0].endOffset), 'path/to/file.txt');
+      assert.strictEqual(locations[0].snippet.path, 'path/to/file.txt');
+      assert.deepStrictEqual(locations[0].snippet.lineRanges, [{ start: 1, end: 3 }, { start: 5, end: 7 }]);
+    });
+  });
 });
