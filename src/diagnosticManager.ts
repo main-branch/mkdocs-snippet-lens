@@ -2,7 +2,24 @@ import * as vscode from 'vscode';
 import { SnippetDetector } from './snippetDetector';
 import { PathResolver } from './pathResolver';
 import { SnippetLocator } from './snippetLocator';
-import { createDiagnosticInfos } from './diagnosticCreator';
+import { createDiagnosticInfos, DiagnosticSeverity } from './diagnosticCreator';
+
+/**
+ * Converts a DiagnosticSeverity enum to VS Code DiagnosticSeverity
+ * @param severity The diagnostic severity from our enum
+ * @returns VS Code DiagnosticSeverity
+ */
+function toVSCodeSeverity(severity: DiagnosticSeverity): vscode.DiagnosticSeverity {
+  switch (severity) {
+  case DiagnosticSeverity.Warning:
+    return vscode.DiagnosticSeverity.Warning;
+  case DiagnosticSeverity.Error:
+    return vscode.DiagnosticSeverity.Error;
+  default:
+    // Fallback for unexpected severities; TypeScript enums can receive invalid values at runtime.
+    return vscode.DiagnosticSeverity.Error;
+  }
+}
 
 /**
  * Manages diagnostic errors for snippet references
@@ -46,10 +63,11 @@ export class DiagnosticManager {
       const start = document.positionAt(info.startOffset);
       const end = document.positionAt(info.endOffset);
       const range = new vscode.Range(start, end);
+
       const diagnostic = new vscode.Diagnostic(
         range,
         info.message,
-        vscode.DiagnosticSeverity.Error
+        toVSCodeSeverity(info.severity)
       );
       diagnostic.source = 'mkdocs-snippet-lens';
       return diagnostic;

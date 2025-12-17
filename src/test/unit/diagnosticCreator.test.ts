@@ -1,8 +1,27 @@
 import * as assert from 'assert';
-import { createDiagnosticInfos } from '../../diagnosticCreator';
+import { createDiagnosticInfos, DiagnosticSeverity, getSeverityLevel } from '../../diagnosticCreator';
 import { SnippetLocation } from '../../snippetLocator';
 
 describe('DiagnosticCreator', () => {
+  describe('getSeverityLevel', () => {
+    it('should return 2 for Error severity', () => {
+      assert.strictEqual(getSeverityLevel(DiagnosticSeverity.Error), 2);
+    });
+
+    it('should return 1 for Warning severity', () => {
+      assert.strictEqual(getSeverityLevel(DiagnosticSeverity.Warning), 1);
+    });
+
+    it('should throw error for invalid severity value', () => {
+      // Test defensive programming for invalid enum values at runtime
+      const invalidSeverity = 'invalid' as unknown as DiagnosticSeverity;
+      assert.throws(
+        () => getSeverityLevel(invalidSeverity),
+        /Unsupported DiagnosticSeverity: invalid/
+      );
+    });
+  });
+
   describe('createDiagnosticInfos', () => {
     it('should create diagnostic for unresolved path', () => {
       const locations: SnippetLocation[] = [
@@ -22,6 +41,7 @@ describe('DiagnosticCreator', () => {
       assert.strictEqual(diagnostics[0].message, "Snippet file not found: 'missing.txt'");
       assert.strictEqual(diagnostics[0].startOffset, 10);
       assert.strictEqual(diagnostics[0].endOffset, 21);
+      assert.strictEqual(diagnostics[0].severity, DiagnosticSeverity.Error);
     });
 
     it('should not create diagnostic for resolved path', () => {
@@ -79,6 +99,7 @@ describe('DiagnosticCreator', () => {
       assert.strictEqual(diagnostics[0].message, "Snippet file not found: 'missing.txt'");
       assert.strictEqual(diagnostics[0].startOffset, 30);
       assert.strictEqual(diagnostics[0].endOffset, 41);
+      assert.strictEqual(diagnostics[0].severity, DiagnosticSeverity.Error);
     });
 
     it('should return empty array when all paths resolve', () => {
@@ -135,7 +156,9 @@ describe('DiagnosticCreator', () => {
 
       assert.strictEqual(diagnostics.length, 2);
       assert.strictEqual(diagnostics[0].message, "Snippet file not found: 'missing1.txt'");
+      assert.strictEqual(diagnostics[0].severity, DiagnosticSeverity.Error);
       assert.strictEqual(diagnostics[1].message, "Snippet file not found: 'missing2.txt'");
+      assert.strictEqual(diagnostics[1].severity, DiagnosticSeverity.Error);
     });
 
     it('should create warning for ambiguous pattern', () => {
@@ -161,6 +184,7 @@ describe('DiagnosticCreator', () => {
       assert.strictEqual(diagnostics[0].message, 'Multi-range pattern contains non-numeric part: "invalid"');
       assert.strictEqual(diagnostics[0].startOffset, 10);
       assert.strictEqual(diagnostics[0].endOffset, 35);
+      assert.strictEqual(diagnostics[0].severity, DiagnosticSeverity.Warning);
     });
 
     it('should create both file-not-found and ambiguous diagnostics', () => {
@@ -190,7 +214,9 @@ describe('DiagnosticCreator', () => {
 
       assert.strictEqual(diagnostics.length, 2);
       assert.strictEqual(diagnostics[0].message, "Snippet file not found: 'missing.txt'");
+      assert.strictEqual(diagnostics[0].severity, DiagnosticSeverity.Error);
       assert.strictEqual(diagnostics[1].message, 'Multi-range pattern contains malformed range: "1:"');
+      assert.strictEqual(diagnostics[1].severity, DiagnosticSeverity.Warning);
     });
 
     it('should not create ambiguous diagnostic when pattern is not ambiguous', () => {
