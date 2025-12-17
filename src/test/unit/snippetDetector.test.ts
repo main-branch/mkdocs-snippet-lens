@@ -81,7 +81,7 @@ describe('SnippetDetector', () => {
 			]);
 		});
 
-		it('should treat invalid multi-range as section name', () => {
+		it('should fall back to section pattern when multi-range validation fails', () => {
 			const detector = new SnippetDetector();
 			const text = '--8<-- "file.md:1:3,invalid"';
 			const result = detector.detect(text);
