@@ -80,6 +80,16 @@ This extension contributes the following settings:
 
 ## Known Issues
 
+### Parser Fallback Behavior
+
+When an invalid multi-range pattern is encountered (e.g., `--8<-- "file.md:1:3,invalid"`
+where one of the ranges is malformed), the parser falls back to treating the entire
+reference as a section reference. This means the example above would be parsed as
+`path="file.md:1"` with `section="3,invalid"`, which may not match your intent.
+
+To avoid this, ensure multi-range patterns use the correct format with all ranges as
+numeric pairs: `--8<-- "file.md:1:3,5:7"`
+
 See the
 [issue tracker](https://github.com/main-branch/mkdocs-snippet-lens/issues) for known
 issues.

@@ -31,6 +31,12 @@ export class SnippetDetector {
 			const ref = match[1];
 
 			// Try to match multiple line ranges pattern (numeric:numeric,numeric:numeric...)
+			// Note: If this validation fails, the code will fall through to the section pattern
+			// matcher below. This means invalid multi-range patterns like "file.md:1:3,invalid"
+		// will be parsed as a section reference instead of a multi-range reference (path="file.md:1", section="3,invalid").
+			// This fallback behavior can result in unexpected parsing for malformed multi-range
+			// input where the user likely intended a multi-range but made a typo. However, it
+			// allows the extension to continue functioning rather than failing entirely.
 			const multiRangeMatch = ref.match(/^(.*?):(.+)$/);
 			if (multiRangeMatch && multiRangeMatch[2].includes(',')) {
 				const path = multiRangeMatch[1];
@@ -38,12 +44,14 @@ export class SnippetDetector {
 				const rangeParts = rangesStr.split(',');
 				const ranges: Array<{ start: number; end: number }> = [];
 
+				// Validate each range part is in numeric:numeric format
 				let allRangesValid = true;
 				for (const part of rangeParts) {
 					const rangeMatch = part.match(/^(\d+):(\d+)$/);
 					if (rangeMatch) {
 						ranges.push({ start: parseInt(rangeMatch[1], 10), end: parseInt(rangeMatch[2], 10) });
 					} else {
+						// Invalid range part found - will fall back to section pattern below
 						allRangesValid = false;
 						break;
 					}
@@ -53,6 +61,7 @@ export class SnippetDetector {
 					snippets.push({ path, lineRanges: ranges });
 					continue;
 				}
+				// If validation failed, fall through to try section pattern next
 			}
 
 			// Try to match line range pattern (numeric:numeric)
