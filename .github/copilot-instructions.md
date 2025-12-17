@@ -273,3 +273,14 @@ Follow Conventional Commits:
 - `chore:` - Build/tooling changes
 
 Use commitlint for validation (already configured in project).
+
+## Pull Request Creation
+
+**Always create PRs from a new branch based on the tip of origin/main:**
+
+1. Ensure local main is up-to-date: `git fetch origin main`
+2. Create a new branch from origin/main: `git checkout -b feature/your-branch-name origin/main`
+3. Make your changes and commit following conventional commits
+4. Push the branch and create the PR
+
+Never create PRs from other branches or directly from main.
