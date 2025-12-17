@@ -66,22 +66,30 @@ export function createPreviewContent(
 
 /**
  * Extracts a named section from content
+ * 
+ * Matches MkDocs behavior where section markers can appear anywhere in a line,
+ * allowing them to be embedded in comments. Based on the official MkDocs regex:
+ * https://github.com/facelessuser/pymdown-extensions/blob/main/pymdownx/snippets.py#L72-L76
+ * 
  * @param content The full file content
  * @param sectionName The name of the section to extract
  * @returns The extracted section content or undefined if not found
  */
 function extractSection(content: string, sectionName: string): string | undefined {
 	const lines = content.split('\n');
-	const startMarker = `--8<-- [start:${sectionName}]`;
-	const endMarker = `--8<-- [end:${sectionName}]`;
+	// Escape special regex characters in section name
+	const escapedName = sectionName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+	// Match markers anywhere in line, with flexible whitespace per MkDocs spec
+	const startPattern = new RegExp(`--8<--\\s*\\[\\s*start\\s*:\\s*${escapedName}\\s*\\]`);
+	const endPattern = new RegExp(`--8<--\\s*\\[\\s*end\\s*:\\s*${escapedName}\\s*\\]`);
 
 	let startIndex = -1;
 	let endIndex = -1;
 
 	for (let i = 0; i < lines.length; i++) {
-		if (lines[i].trim() === startMarker) {
+		if (startPattern.test(lines[i])) {
 			startIndex = i + 1;
-		} else if (lines[i].trim() === endMarker && startIndex !== -1) {
+		} else if (endPattern.test(lines[i]) && startIndex !== -1) {
 			endIndex = i;
 			break;
 		}
