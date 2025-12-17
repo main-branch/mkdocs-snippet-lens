@@ -66,11 +66,11 @@ export function createPreviewContent(
 
 /**
  * Extracts a named section from content
- * 
+ *
  * Matches MkDocs behavior where section markers can appear anywhere in a line,
  * allowing them to be embedded in comments. Based on the official MkDocs regex:
  * https://github.com/facelessuser/pymdown-extensions/blob/main/pymdownx/snippets.py#L72-L76
- * 
+ *
  * @param content The full file content
  * @param sectionName The name of the section to extract
  * @returns The extracted section content or undefined if not found
@@ -104,6 +104,7 @@ function extractSection(content: string, sectionName: string): string | undefine
 
 /**
  * Extracts a line range from content (1-indexed, inclusive)
+ * Line numbers are 1-based (0 is clamped to 1) per REQUIREMENTS.md:324
  * @param content The full file content
  * @param start The starting line number (1-indexed)
  * @param end The ending line number (1-indexed, inclusive)
@@ -111,12 +112,16 @@ function extractSection(content: string, sectionName: string): string | undefine
  */
 function extractLineRange(content: string, start: number, end: number): string {
 	const lines = content.split('\n');
+	// Clamp both start and end to minimum of 1 per requirements
+	const clampedStart = Math.max(1, start);
+	const clampedEnd = Math.max(1, end);
 	// Convert 1-indexed to 0-indexed and make end inclusive
-	return lines.slice(start - 1, end).join('\n');
+	return lines.slice(clampedStart - 1, clampedEnd).join('\n');
 }
 
 /**
  * Extracts multiple line ranges from content (1-indexed, inclusive)
+ * Line numbers are 1-based (0 is clamped to 1) per REQUIREMENTS.md:324
  * @param content The full file content
  * @param ranges Array of line ranges to extract
  * @returns The concatenated extracted line ranges
@@ -126,8 +131,11 @@ function extractMultipleLineRanges(content: string, ranges: Array<{ start: numbe
 	const extractedLines: string[] = [];
 
 	for (const range of ranges) {
+		// Clamp both start and end to minimum of 1 per requirements
+		const clampedStart = Math.max(1, range.start);
+		const clampedEnd = Math.max(1, range.end);
 		// Convert 1-indexed to 0-indexed and make end inclusive
-		const rangeLines = lines.slice(range.start - 1, range.end);
+		const rangeLines = lines.slice(clampedStart - 1, clampedEnd);
 		extractedLines.push(...rangeLines);
 	}
 
