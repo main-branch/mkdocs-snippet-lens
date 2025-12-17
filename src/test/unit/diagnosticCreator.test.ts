@@ -137,5 +137,80 @@ describe('DiagnosticCreator', () => {
       assert.strictEqual(diagnostics[0].message, "Snippet file not found: 'missing1.txt'");
       assert.strictEqual(diagnostics[1].message, "Snippet file not found: 'missing2.txt'");
     });
+
+    it('should create warning for ambiguous pattern', () => {
+      const locations: SnippetLocation[] = [
+        {
+          snippet: {
+            path: 'file.md',
+            section: '1:3,invalid',
+            isAmbiguous: true,
+            ambiguousReason: 'Multi-range pattern contains non-numeric part: "invalid"'
+          },
+          startOffset: 10,
+          endOffset: 35,
+          lineEndOffset: 36
+        }
+      ];
+
+      const resolvePath = (path: string) => '/absolute/path/to/file.md';
+
+      const diagnostics = createDiagnosticInfos(locations, resolvePath);
+
+      assert.strictEqual(diagnostics.length, 1);
+      assert.strictEqual(diagnostics[0].message, 'Multi-range pattern contains non-numeric part: "invalid"');
+      assert.strictEqual(diagnostics[0].startOffset, 10);
+      assert.strictEqual(diagnostics[0].endOffset, 35);
+    });
+
+    it('should create both file-not-found and ambiguous diagnostics', () => {
+      const locations: SnippetLocation[] = [
+        {
+          snippet: { path: 'missing.txt' },
+          startOffset: 0,
+          endOffset: 10,
+          lineEndOffset: 11
+        },
+        {
+          snippet: {
+            path: 'file.md',
+            section: '1:,5:7',
+            isAmbiguous: true,
+            ambiguousReason: 'Multi-range pattern contains malformed range: "1:"'
+          },
+          startOffset: 20,
+          endOffset: 35,
+          lineEndOffset: 36
+        }
+      ];
+
+      const resolvePath = (path: string) => path === 'file.md' ? '/absolute/path/to/file.md' : undefined;
+
+      const diagnostics = createDiagnosticInfos(locations, resolvePath);
+
+      assert.strictEqual(diagnostics.length, 2);
+      assert.strictEqual(diagnostics[0].message, "Snippet file not found: 'missing.txt'");
+      assert.strictEqual(diagnostics[1].message, 'Multi-range pattern contains malformed range: "1:"');
+    });
+
+    it('should not create ambiguous diagnostic when pattern is not ambiguous', () => {
+      const locations: SnippetLocation[] = [
+        {
+          snippet: {
+            path: 'file.md',
+            section: 'my_section'
+          },
+          startOffset: 10,
+          endOffset: 30,
+          lineEndOffset: 31
+        }
+      ];
+
+      const resolvePath = (path: string) => '/absolute/path/to/file.md';
+
+      const diagnostics = createDiagnosticInfos(locations, resolvePath);
+
+      assert.strictEqual(diagnostics.length, 0);
+    });
   });
 });

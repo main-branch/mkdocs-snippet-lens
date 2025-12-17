@@ -10,6 +10,10 @@ export interface SnippetInfo {
   lines?: { start: number; end: number };
   /** Multiple line ranges referenced in the snippet, if any */
   lineRanges?: Array<{ start: number; end: number }>;
+  /** Flag indicating if the pattern is ambiguous (malformed multi-range) */
+  isAmbiguous?: boolean;
+  /** Reason why the pattern is considered ambiguous */
+  ambiguousReason?: string;
 }
 
 /**
@@ -46,6 +50,7 @@ export class SnippetDetector {
 
         // Validate each range part is in numeric:numeric format
         let allRangesValid = true;
+        let ambiguousReason: string | undefined;
         for (const part of rangeParts) {
           const rangeMatch = part.match(/^(\d+):(\d+)$/);
           if (rangeMatch) {
@@ -53,6 +58,14 @@ export class SnippetDetector {
           } else {
             // Invalid range part found - will fall back to section pattern below
             allRangesValid = false;
+            // Determine the type of error for better messaging
+            // Empty strings or parts containing digits are considered malformed ranges
+            // Only parts with no digits at all are considered non-numeric
+            if (part === '' || /\d/.test(part)) {
+              ambiguousReason = `Multi-range pattern contains malformed range: "${part}"`;
+            } else {
+              ambiguousReason = `Multi-range pattern contains non-numeric part: "${part}"`;
+            }
             break;
           }
         }
@@ -60,8 +73,20 @@ export class SnippetDetector {
         if (allRangesValid && ranges.length > 0) {
           snippets.push({ path, lineRanges: ranges });
           continue;
+        } else if (!allRangesValid && ambiguousReason) {
+          // Pattern looks like a multi-range but is malformed - mark as ambiguous
+          // Use the original path from multiRangeMatch and the rangesStr as section
+          snippets.push({
+            path,
+            section: rangesStr,
+            isAmbiguous: true,
+            ambiguousReason
+          });
+          continue;
         }
-        // If validation failed, fall through to try section pattern next
+        // At this point either the reference was not a valid multi-range pattern,
+        // or it did not meet our multi-range heuristics. Fall through and attempt
+        // to parse it as a simple line-range or section pattern instead.
       }
 
       // Try to match line range pattern (numeric:numeric)
