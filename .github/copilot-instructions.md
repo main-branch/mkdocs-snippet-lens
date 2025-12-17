@@ -219,7 +219,7 @@ Access via `vscode.workspace.getConfiguration('mkdocsSnippetLens')`.
 
 ## Documentation
 
-- Update CHANGELOG.md for all user-visible changes
+- DO NOT UPDATE CHANGELOG.md since it is generated
 - Keep README.md examples up-to-date
 - Document limitations in README known issues section
 - Use inline comments for complex logic
