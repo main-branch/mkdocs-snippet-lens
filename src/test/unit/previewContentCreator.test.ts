@@ -326,6 +326,419 @@ describe('PreviewContentCreator', () => {
 			assert.strictEqual(result, 'Line 1 ⏎ Line 2 ⏎ Line 4 ⏎ Line 5');
 		});
 
+		describe('edge cases for line range extraction', () => {
+			it('should return empty string when start exceeds file length', () => {
+				const location: SnippetLocation = {
+					snippet: { path: 'test.md', lines: { start: 100, end: 105 } },
+					startOffset: 0,
+					endOffset: 10,
+					lineEndOffset: 10
+				};
+				const resolver = new PathResolver(() => true);
+				const readFile = () =>
+					'Line 1\n' +
+					'Line 2\n' +
+					'Line 3\n' +
+					'Line 4\n' +
+					'Line 5\n' +
+					'Line 6\n' +
+					'Line 7\n' +
+					'Line 8\n' +
+					'Line 9\n' +
+					'Line 10';
+
+				const result = createPreviewContent(
+					location,
+					'/docs/main.md',
+					'/workspace',
+					'',
+					20,
+					200,
+					resolver,
+					readFile
+				);
+
+				assert.strictEqual(result, '');
+			});
+
+			it('should return partial content when end exceeds file length', () => {
+				const location: SnippetLocation = {
+					snippet: { path: 'test.md', lines: { start: 5, end: 100 } },
+					startOffset: 0,
+					endOffset: 10,
+					lineEndOffset: 10
+				};
+				const resolver = new PathResolver(() => true);
+				const readFile = () =>
+					'Line 1\n' +
+					'Line 2\n' +
+					'Line 3\n' +
+					'Line 4\n' +
+					'Line 5\n' +
+					'Line 6\n' +
+					'Line 7\n' +
+					'Line 8\n' +
+					'Line 9\n' +
+					'Line 10';
+
+				const result = createPreviewContent(
+					location,
+					'/docs/main.md',
+					'/workspace',
+					'',
+					20,
+					200,
+					resolver,
+					readFile
+				);
+
+				assert.strictEqual(result, 'Line 5 ⏎ Line 6 ⏎ Line 7 ⏎ Line 8 ⏎ Line 9 ⏎ Line 10');
+			});
+
+			it('should return empty string when start is greater than end (reversed range)', () => {
+				const location: SnippetLocation = {
+					snippet: { path: 'test.md', lines: { start: 5, end: 2 } },
+					startOffset: 0,
+					endOffset: 10,
+					lineEndOffset: 10
+				};
+				const resolver = new PathResolver(() => true);
+				const readFile = () =>
+					'Line 1\n' +
+					'Line 2\n' +
+					'Line 3\n' +
+					'Line 4\n' +
+					'Line 5';
+
+				const result = createPreviewContent(
+					location,
+					'/docs/main.md',
+					'/workspace',
+					'',
+					20,
+					200,
+					resolver,
+					readFile
+				);
+
+				assert.strictEqual(result, '');
+			});
+
+			it('should clamp line 0 to line 1 for start parameter', () => {
+				const location: SnippetLocation = {
+					snippet: { path: 'test.md', lines: { start: 0, end: 3 } },
+					startOffset: 0,
+					endOffset: 10,
+					lineEndOffset: 10
+				};
+				const resolver = new PathResolver(() => true);
+				const readFile = () =>
+					'Line 1\n' +
+					'Line 2\n' +
+					'Line 3\n' +
+					'Line 4\n' +
+					'Line 5';
+
+				const result = createPreviewContent(
+					location,
+					'/docs/main.md',
+					'/workspace',
+					'',
+					20,
+					200,
+					resolver,
+					readFile
+				);
+
+				// Line 0 should be clamped to line 1, so we should get lines 1-3
+				assert.strictEqual(result, 'Line 1 ⏎ Line 2 ⏎ Line 3');
+			});
+
+			it('should clamp line 0 to line 1 for end parameter', () => {
+				const location: SnippetLocation = {
+					snippet: { path: 'test.md', lines: { start: 1, end: 0 } },
+					startOffset: 0,
+					endOffset: 10,
+					lineEndOffset: 10
+				};
+				const resolver = new PathResolver(() => true);
+				const readFile = () =>
+					'Line 1\n' +
+					'Line 2\n' +
+					'Line 3\n' +
+					'Line 4\n' +
+					'Line 5';
+
+				const result = createPreviewContent(
+					location,
+					'/docs/main.md',
+					'/workspace',
+					'',
+					20,
+					200,
+					resolver,
+					readFile
+				);
+
+				// End of 0 should be clamped to 1, so we should get line 1 only
+				assert.strictEqual(result, 'Line 1');
+			});
+
+			it('should clamp both start and end when both are 0', () => {
+				const location: SnippetLocation = {
+					snippet: { path: 'test.md', lines: { start: 0, end: 0 } },
+					startOffset: 0,
+					endOffset: 10,
+					lineEndOffset: 10
+				};
+				const resolver = new PathResolver(() => true);
+				const readFile = () =>
+					'Line 1\n' +
+					'Line 2\n' +
+					'Line 3';
+
+				const result = createPreviewContent(
+					location,
+					'/docs/main.md',
+					'/workspace',
+					'',
+					20,
+					200,
+					resolver,
+					readFile
+				);
+
+				// Both 0s clamped to 1, so extract line 1 only
+				assert.strictEqual(result, 'Line 1');
+			});
+
+			it('should return empty string when extracting from empty file', () => {
+				const location: SnippetLocation = {
+					snippet: { path: 'test.md', lines: { start: 1, end: 5 } },
+					startOffset: 0,
+					endOffset: 10,
+					lineEndOffset: 10
+				};
+				const resolver = new PathResolver(() => true);
+				const readFile = () => '';
+
+				const result = createPreviewContent(
+					location,
+					'/docs/main.md',
+					'/workspace',
+					'',
+					20,
+					200,
+					resolver,
+					readFile
+				);
+
+				assert.strictEqual(result, '');
+			});
+		});
+
+		describe('edge cases for multiple line range extraction', () => {
+			it('should handle multiple ranges with out-of-bounds start', () => {
+				const location: SnippetLocation = {
+					snippet: { path: 'test.md', lineRanges: [{ start: 1, end: 2 }, { start: 100, end: 105 }] },
+					startOffset: 0,
+					endOffset: 10,
+					lineEndOffset: 10
+				};
+				const resolver = new PathResolver(() => true);
+				const readFile = () =>
+					'Line 1\n' +
+					'Line 2\n' +
+					'Line 3';
+
+				const result = createPreviewContent(
+					location,
+					'/docs/main.md',
+					'/workspace',
+					'',
+					20,
+					200,
+					resolver,
+					readFile
+				);
+
+				// Should include first range only (second is out of bounds)
+				assert.strictEqual(result, 'Line 1 ⏎ Line 2');
+			});
+
+			it('should handle multiple ranges with out-of-bounds end', () => {
+				const location: SnippetLocation = {
+					snippet: { path: 'test.md', lineRanges: [{ start: 1, end: 2 }, { start: 2, end: 100 }] },
+					startOffset: 0,
+					endOffset: 10,
+					lineEndOffset: 10
+				};
+				const resolver = new PathResolver(() => true);
+				const readFile = () =>
+					'Line 1\n' +
+					'Line 2\n' +
+					'Line 3';
+
+				const result = createPreviewContent(
+					location,
+					'/docs/main.md',
+					'/workspace',
+					'',
+					20,
+					200,
+					resolver,
+					readFile
+				);
+
+				// Should include first range and partial second range
+				assert.strictEqual(result, 'Line 1 ⏎ Line 2 ⏎ Line 2 ⏎ Line 3');
+			});
+
+			it('should handle multiple ranges with reversed range', () => {
+				const location: SnippetLocation = {
+					snippet: { path: 'test.md', lineRanges: [{ start: 1, end: 2 }, { start: 5, end: 2 }] },
+					startOffset: 0,
+					endOffset: 10,
+					lineEndOffset: 10
+				};
+				const resolver = new PathResolver(() => true);
+				const readFile = () =>
+					'Line 1\n' +
+					'Line 2\n' +
+					'Line 3\n' +
+					'Line 4\n' +
+					'Line 5';
+
+				const result = createPreviewContent(
+					location,
+					'/docs/main.md',
+					'/workspace',
+					'',
+					20,
+					200,
+					resolver,
+					readFile
+				);
+
+				// Second range is reversed, so it returns empty
+				assert.strictEqual(result, 'Line 1 ⏎ Line 2');
+			});
+
+			it('should clamp line 0 in multiple ranges', () => {
+				const location: SnippetLocation = {
+					snippet: { path: 'test.md', lineRanges: [{ start: 0, end: 2 }, { start: 4, end: 5 }] },
+					startOffset: 0,
+					endOffset: 10,
+					lineEndOffset: 10
+				};
+				const resolver = new PathResolver(() => true);
+				const readFile = () =>
+					'Line 1\n' +
+					'Line 2\n' +
+					'Line 3\n' +
+					'Line 4\n' +
+					'Line 5';
+
+				const result = createPreviewContent(
+					location,
+					'/docs/main.md',
+					'/workspace',
+					'',
+					20,
+					200,
+					resolver,
+					readFile
+				);
+
+				// Line 0 should be clamped to 1
+				assert.strictEqual(result, 'Line 1 ⏎ Line 2 ⏎ Line 4 ⏎ Line 5');
+			});
+
+			it('should clamp line 0 for end in multiple ranges', () => {
+				const location: SnippetLocation = {
+					snippet: { path: 'test.md', lineRanges: [{ start: 1, end: 0 }, { start: 4, end: 5 }] },
+					startOffset: 0,
+					endOffset: 10,
+					lineEndOffset: 10
+				};
+				const resolver = new PathResolver(() => true);
+				const readFile = () =>
+					'Line 1\n' +
+					'Line 2\n' +
+					'Line 3\n' +
+					'Line 4\n' +
+					'Line 5';
+
+				const result = createPreviewContent(
+					location,
+					'/docs/main.md',
+					'/workspace',
+					'',
+					20,
+					200,
+					resolver,
+					readFile
+				);
+
+				// First range: end 0 clamped to 1, so line 1 only. Second range: lines 4-5
+				assert.strictEqual(result, 'Line 1 ⏎ Line 4 ⏎ Line 5');
+			});
+
+			it('should clamp line 0 for end in multiple ranges', () => {
+				const location: SnippetLocation = {
+					snippet: { path: 'test.md', lineRanges: [{ start: 1, end: 0 }, { start: 4, end: 5 }] },
+					startOffset: 0,
+					endOffset: 10,
+					lineEndOffset: 10
+				};
+				const resolver = new PathResolver(() => true);
+				const readFile = () =>
+					'Line 1\n' +
+					'Line 2\n' +
+					'Line 3\n' +
+					'Line 4\n' +
+					'Line 5';
+
+				const result = createPreviewContent(
+					location,
+					'/docs/main.md',
+					'/workspace',
+					'',
+					20,
+					200,
+					resolver,
+					readFile
+				);
+
+				// First range: end 0 clamped to 1, so line 1 only. Second range: lines 4-5
+				assert.strictEqual(result, 'Line 1 ⏎ Line 4 ⏎ Line 5');
+			});
+
+			it('should handle multiple ranges on empty file', () => {
+				const location: SnippetLocation = {
+					snippet: { path: 'test.md', lineRanges: [{ start: 1, end: 2 }, { start: 4, end: 5 }] },
+					startOffset: 0,
+					endOffset: 10,
+					lineEndOffset: 10
+				};
+				const resolver = new PathResolver(() => true);
+				const readFile = () => '';
+
+				const result = createPreviewContent(
+					location,
+					'/docs/main.md',
+					'/workspace',
+					'',
+					20,
+					200,
+					resolver,
+					readFile
+				);
+
+				assert.strictEqual(result, '');
+			});
+		});
+
 		describe('section markers embedded in comments', () => {
 			it('should extract section with Python comment prefix (#)', () => {
 				const location: SnippetLocation = {
