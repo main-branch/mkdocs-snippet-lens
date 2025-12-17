@@ -15,53 +15,53 @@ import { formatForInlineDisplay } from './inlineFormatter';
  * @returns The formatted preview content or undefined if file can't be read
  */
 export function createPreviewContent(
-	location: SnippetLocation,
-	documentPath: string,
-	workspaceRoot: string,
-	basePath: string,
-	maxLines: number,
-	maxChars: number,
-	resolver: PathResolver,
-	readFile: (path: string) => string
+  location: SnippetLocation,
+  documentPath: string,
+  workspaceRoot: string,
+  basePath: string,
+  maxLines: number,
+  maxChars: number,
+  resolver: PathResolver,
+  readFile: (path: string) => string
 ): string | undefined {
-	const resolvedPath = resolver.resolve(
-		location.snippet.path,
-		documentPath,
-		workspaceRoot,
-		basePath
-	);
+  const resolvedPath = resolver.resolve(
+    location.snippet.path,
+    documentPath,
+    workspaceRoot,
+    basePath
+  );
 
-	if (!resolvedPath) {
-		return undefined;
-	}
+  if (!resolvedPath) {
+    return undefined;
+  }
 
-	try {
-		let content = readFile(resolvedPath);
+  try {
+    let content = readFile(resolvedPath);
 
-		// Extract section if specified
-		if (location.snippet.section) {
-			const extracted = extractSection(content.toString(), location.snippet.section);
-			if (extracted) {
-				content = extracted;
-			}
-		}
+    // Extract section if specified
+    if (location.snippet.section) {
+      const extracted = extractSection(content.toString(), location.snippet.section);
+      if (extracted) {
+        content = extracted;
+      }
+    }
 
-		// Extract line range if specified
-		if (location.snippet.lines) {
-			const extracted = extractLineRange(content.toString(), location.snippet.lines.start, location.snippet.lines.end);
-			content = extracted;
-		}
+    // Extract line range if specified
+    if (location.snippet.lines) {
+      const extracted = extractLineRange(content.toString(), location.snippet.lines.start, location.snippet.lines.end);
+      content = extracted;
+    }
 
-		// Extract multiple line ranges if specified
-		if (location.snippet.lineRanges) {
-			const extracted = extractMultipleLineRanges(content.toString(), location.snippet.lineRanges);
-			content = extracted;
-		}
+    // Extract multiple line ranges if specified
+    if (location.snippet.lineRanges) {
+      const extracted = extractMultipleLineRanges(content.toString(), location.snippet.lineRanges);
+      content = extracted;
+    }
 
-		return formatForInlineDisplay(content.toString(), maxLines, maxChars);
-	} catch (error) {
-		return undefined;
-	}
+    return formatForInlineDisplay(content.toString(), maxLines, maxChars);
+  } catch (error) {
+    return undefined;
+  }
 }
 
 /**
@@ -76,30 +76,30 @@ export function createPreviewContent(
  * @returns The extracted section content or undefined if not found
  */
 function extractSection(content: string, sectionName: string): string | undefined {
-	const lines = content.split('\n');
-	// Escape special regex characters in section name
-	const escapedName = sectionName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-	// Match markers anywhere in line, with flexible whitespace per MkDocs spec
-	const startPattern = new RegExp(`--8<--\\s*\\[\\s*start\\s*:\\s*${escapedName}\\s*\\]`);
-	const endPattern = new RegExp(`--8<--\\s*\\[\\s*end\\s*:\\s*${escapedName}\\s*\\]`);
+  const lines = content.split('\n');
+  // Escape special regex characters in section name
+  const escapedName = sectionName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  // Match markers anywhere in line, with flexible whitespace per MkDocs spec
+  const startPattern = new RegExp(`--8<--\\s*\\[\\s*start\\s*:\\s*${escapedName}\\s*\\]`);
+  const endPattern = new RegExp(`--8<--\\s*\\[\\s*end\\s*:\\s*${escapedName}\\s*\\]`);
 
-	let startIndex = -1;
-	let endIndex = -1;
+  let startIndex = -1;
+  let endIndex = -1;
 
-	for (let i = 0; i < lines.length; i++) {
-		if (startPattern.test(lines[i])) {
-			startIndex = i + 1;
-		} else if (endPattern.test(lines[i]) && startIndex !== -1) {
-			endIndex = i;
-			break;
-		}
-	}
+  for (let i = 0; i < lines.length; i++) {
+    if (startPattern.test(lines[i])) {
+      startIndex = i + 1;
+    } else if (endPattern.test(lines[i]) && startIndex !== -1) {
+      endIndex = i;
+      break;
+    }
+  }
 
-	if (startIndex !== -1 && endIndex !== -1) {
-		return lines.slice(startIndex, endIndex).join('\n');
-	}
+  if (startIndex !== -1 && endIndex !== -1) {
+    return lines.slice(startIndex, endIndex).join('\n');
+  }
 
-	return undefined;
+  return undefined;
 }
 
 /**
@@ -111,12 +111,12 @@ function extractSection(content: string, sectionName: string): string | undefine
  * @returns The extracted line range
  */
 function extractLineRange(content: string, start: number, end: number): string {
-	const lines = content.split('\n');
-	// Clamp both start and end to minimum of 1 per requirements
-	const clampedStart = Math.max(1, start);
-	const clampedEnd = Math.max(1, end);
-	// Convert 1-indexed to 0-indexed and make end inclusive
-	return lines.slice(clampedStart - 1, clampedEnd).join('\n');
+  const lines = content.split('\n');
+  // Clamp both start and end to minimum of 1 per requirements
+  const clampedStart = Math.max(1, start);
+  const clampedEnd = Math.max(1, end);
+  // Convert 1-indexed to 0-indexed and make end inclusive
+  return lines.slice(clampedStart - 1, clampedEnd).join('\n');
 }
 
 /**
@@ -127,17 +127,17 @@ function extractLineRange(content: string, start: number, end: number): string {
  * @returns The concatenated extracted line ranges
  */
 function extractMultipleLineRanges(content: string, ranges: Array<{ start: number; end: number }>): string {
-	const lines = content.split('\n');
-	const extractedLines: string[] = [];
+  const lines = content.split('\n');
+  const extractedLines: string[] = [];
 
-	for (const range of ranges) {
-		// Clamp both start and end to minimum of 1 per requirements
-		const clampedStart = Math.max(1, range.start);
-		const clampedEnd = Math.max(1, range.end);
-		// Convert 1-indexed to 0-indexed and make end inclusive
-		const rangeLines = lines.slice(clampedStart - 1, clampedEnd);
-		extractedLines.push(...rangeLines);
-	}
+  for (const range of ranges) {
+    // Clamp both start and end to minimum of 1 per requirements
+    const clampedStart = Math.max(1, range.start);
+    const clampedEnd = Math.max(1, range.end);
+    // Convert 1-indexed to 0-indexed and make end inclusive
+    const rangeLines = lines.slice(clampedStart - 1, clampedEnd);
+    extractedLines.push(...rangeLines);
+  }
 
-	return extractedLines.join('\n');
+  return extractedLines.join('\n');
 }
