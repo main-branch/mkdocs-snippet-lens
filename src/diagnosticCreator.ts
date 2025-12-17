@@ -22,6 +22,16 @@ export function createDiagnosticInfos(
   const diagnostics: DiagnosticInfo[] = [];
 
   for (const location of locations) {
+    // Check for ambiguous patterns first
+    if (location.snippet.isAmbiguous && location.snippet.ambiguousReason) {
+      diagnostics.push({
+        message: location.snippet.ambiguousReason,
+        startOffset: location.startOffset,
+        endOffset: location.endOffset,
+      });
+    }
+
+    // Check for missing files
     const resolvedPath = resolvePath(location.snippet.path);
     if (!resolvedPath) {
       diagnostics.push({

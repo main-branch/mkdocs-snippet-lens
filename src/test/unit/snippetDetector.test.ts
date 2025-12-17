@@ -87,8 +87,90 @@ describe('SnippetDetector', () => {
       const result = detector.detect(text);
 
       assert.strictEqual(result.length, 1);
-      assert.strictEqual(result[0].path, 'file.md:1');
-      assert.strictEqual(result[0].section, '3,invalid');
+      // Now marked as ambiguous instead of silently falling back
+      assert.strictEqual(result[0].path, 'file.md');
+      assert.strictEqual(result[0].section, '1:3,invalid');
+      assert.strictEqual(result[0].isAmbiguous, true);
+    });
+
+    describe('ambiguous pattern detection', () => {
+      it('should mark pattern as ambiguous when multi-range contains non-numeric part', () => {
+        const detector = new SnippetDetector();
+        const text = '--8<-- "file.md:1:3,invalid"';
+        const result = detector.detect(text);
+
+        assert.strictEqual(result.length, 1);
+        assert.strictEqual(result[0].path, 'file.md');
+        assert.strictEqual(result[0].section, '1:3,invalid');
+        assert.strictEqual(result[0].isAmbiguous, true);
+        assert.strictEqual(result[0].ambiguousReason, 'Multi-range pattern contains non-numeric part: "invalid"');
+      });
+
+      it('should mark pattern as ambiguous when multi-range has empty range', () => {
+        const detector = new SnippetDetector();
+        const text = '--8<-- "file.md:1:,5:7"';
+        const result = detector.detect(text);
+
+        assert.strictEqual(result.length, 1);
+        assert.strictEqual(result[0].path, 'file.md');
+        assert.strictEqual(result[0].section, '1:,5:7');
+        assert.strictEqual(result[0].isAmbiguous, true);
+        assert.strictEqual(result[0].ambiguousReason, 'Multi-range pattern contains malformed range: "1:"');
+      });
+
+      it('should mark pattern as ambiguous when multi-range has incomplete range', () => {
+        const detector = new SnippetDetector();
+        const text = '--8<-- "file.md:1:3,5:"';
+        const result = detector.detect(text);
+
+        assert.strictEqual(result.length, 1);
+        assert.strictEqual(result[0].path, 'file.md');
+        assert.strictEqual(result[0].section, '1:3,5:');
+        assert.strictEqual(result[0].isAmbiguous, true);
+        assert.strictEqual(result[0].ambiguousReason, 'Multi-range pattern contains malformed range: "5:"');
+      });
+
+      it('should mark pattern as ambiguous when multi-range has trailing comma', () => {
+        const detector = new SnippetDetector();
+        const text = '--8<-- "file.md:1:3,"';
+        const result = detector.detect(text);
+
+        assert.strictEqual(result.length, 1);
+        assert.strictEqual(result[0].path, 'file.md');
+        assert.strictEqual(result[0].section, '1:3,');
+        assert.strictEqual(result[0].isAmbiguous, true);
+        assert.strictEqual(result[0].ambiguousReason, 'Multi-range pattern contains malformed range: ""');
+      });
+
+      it('should not mark valid section patterns as ambiguous', () => {
+        const detector = new SnippetDetector();
+        const text = '--8<-- "file.md:my_section"';
+        const result = detector.detect(text);
+
+        assert.strictEqual(result.length, 1);
+        assert.strictEqual(result[0].isAmbiguous, undefined);
+        assert.strictEqual(result[0].ambiguousReason, undefined);
+      });
+
+      it('should not mark valid line range patterns as ambiguous', () => {
+        const detector = new SnippetDetector();
+        const text = '--8<-- "file.md:10:20"';
+        const result = detector.detect(text);
+
+        assert.strictEqual(result.length, 1);
+        assert.strictEqual(result[0].isAmbiguous, undefined);
+        assert.strictEqual(result[0].ambiguousReason, undefined);
+      });
+
+      it('should not mark valid multi-range patterns as ambiguous', () => {
+        const detector = new SnippetDetector();
+        const text = '--8<-- "file.md:1:3,5:7"';
+        const result = detector.detect(text);
+
+        assert.strictEqual(result.length, 1);
+        assert.strictEqual(result[0].isAmbiguous, undefined);
+        assert.strictEqual(result[0].ambiguousReason, undefined);
+      });
     });
   });
 });
