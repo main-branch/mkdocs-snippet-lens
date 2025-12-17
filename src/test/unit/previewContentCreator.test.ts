@@ -325,5 +325,344 @@ describe('PreviewContentCreator', () => {
 
 			assert.strictEqual(result, 'Line 1 ⏎ Line 2 ⏎ Line 4 ⏎ Line 5');
 		});
+
+		describe('section markers embedded in comments', () => {
+			it('should extract section with Python comment prefix (#)', () => {
+				const location: SnippetLocation = {
+					snippet: { path: 'example.py', section: 'func' },
+					startOffset: 0,
+					endOffset: 10,
+					lineEndOffset: 10
+				};
+				const resolver = new PathResolver(() => true);
+				const readFile = () =>
+					'# --8<-- [start:func]\n' +
+					'def my_function(var):\n' +
+					'    pass\n' +
+					'# --8<-- [end:func]';
+
+				const result = createPreviewContent(
+					location,
+					'/docs/main.md',
+					'/workspace',
+					'',
+					20,
+					200,
+					resolver,
+					readFile
+				);
+
+				assert.strictEqual(result, 'def my_function(var): ⏎     pass');
+			});
+
+			it('should extract section with JavaScript comment prefix (//)', () => {
+				const location: SnippetLocation = {
+					snippet: { path: 'example.js', section: 'func' },
+					startOffset: 0,
+					endOffset: 10,
+					lineEndOffset: 10
+				};
+				const resolver = new PathResolver(() => true);
+				const readFile = () =>
+					'// --8<-- [start:func]\n' +
+					'function myFunction() {\n' +
+					'    return true;\n' +
+					'}\n' +
+					'// --8<-- [end:func]';
+
+				const result = createPreviewContent(
+					location,
+					'/docs/main.md',
+					'/workspace',
+					'',
+					20,
+					200,
+					resolver,
+					readFile
+				);
+
+				assert.strictEqual(result, 'function myFunction() { ⏎     return true; ⏎ }');
+			});
+
+			it('should extract section with HTML comment wrapper', () => {
+				const location: SnippetLocation = {
+					snippet: { path: 'example.html', section: 'content' },
+					startOffset: 0,
+					endOffset: 10,
+					lineEndOffset: 10
+				};
+				const resolver = new PathResolver(() => true);
+				const readFile = () =>
+					'<!-- --8<-- [start:content] -->\n' +
+					'<div>Hello World</div>\n' +
+					'<!-- --8<-- [end:content] -->';
+
+				const result = createPreviewContent(
+					location,
+					'/docs/main.md',
+					'/workspace',
+					'',
+					20,
+					200,
+					resolver,
+					readFile
+				);
+
+				assert.strictEqual(result, '<div>Hello World</div>');
+			});
+
+			it('should extract section with C-style block comment', () => {
+				const location: SnippetLocation = {
+					snippet: { path: 'example.c', section: 'func' },
+					startOffset: 0,
+					endOffset: 10,
+					lineEndOffset: 10
+				};
+				const resolver = new PathResolver(() => true);
+				const readFile = () =>
+					'/* --8<-- [start:func] */\n' +
+					'void myFunction() {\n' +
+					'    return;\n' +
+					'}\n' +
+					'/* --8<-- [end:func] */';
+
+				const result = createPreviewContent(
+					location,
+					'/docs/main.md',
+					'/workspace',
+					'',
+					20,
+					200,
+					resolver,
+					readFile
+				);
+
+				assert.strictEqual(result, 'void myFunction() { ⏎     return; ⏎ }');
+			});
+
+			it('should extract section with Lisp comment prefix (;;)', () => {
+				const location: SnippetLocation = {
+					snippet: { path: 'example.lisp', section: 'func' },
+					startOffset: 0,
+					endOffset: 10,
+					lineEndOffset: 10
+				};
+				const resolver = new PathResolver(() => true);
+				const readFile = () =>
+					';; --8<-- [start:func]\n' +
+					'(defun my-function (x)\n' +
+					'  (* x x))\n' +
+					';; --8<-- [end:func]';
+
+				const result = createPreviewContent(
+					location,
+					'/docs/main.md',
+					'/workspace',
+					'',
+					20,
+					200,
+					resolver,
+					readFile
+				);
+
+				assert.strictEqual(result, '(defun my-function (x) ⏎   (* x x))');
+			});
+
+			it('should extract section with Batch file comment prefix (REM)', () => {
+				const location: SnippetLocation = {
+					snippet: { path: 'example.bat', section: 'func' },
+					startOffset: 0,
+					endOffset: 10,
+					lineEndOffset: 10
+				};
+				const resolver = new PathResolver(() => true);
+				const readFile = () =>
+					'REM --8<-- [start:func]\n' +
+					'@echo off\n' +
+					'echo Hello World\n' +
+					'REM --8<-- [end:func]';
+
+				const result = createPreviewContent(
+					location,
+					'/docs/main.md',
+					'/workspace',
+					'',
+					20,
+					200,
+					resolver,
+					readFile
+				);
+
+				assert.strictEqual(result, '@echo off ⏎ echo Hello World');
+			});
+		});
+
+		describe('section markers with whitespace variations', () => {
+			it('should handle markers with no spaces around brackets', () => {
+				const location: SnippetLocation = {
+					snippet: { path: 'test.md', section: 'section' },
+					startOffset: 0,
+					endOffset: 10,
+					lineEndOffset: 10
+				};
+				const resolver = new PathResolver(() => true);
+				const readFile = () =>
+					'--8<--[start:section]\n' +
+					'Content here\n' +
+					'--8<--[end:section]';
+
+				const result = createPreviewContent(
+					location,
+					'/docs/main.md',
+					'/workspace',
+					'',
+					20,
+					200,
+					resolver,
+					readFile
+				);
+
+				assert.strictEqual(result, 'Content here');
+			});
+
+			it('should handle markers with spaces everywhere', () => {
+				const location: SnippetLocation = {
+					snippet: { path: 'test.md', section: 'section' },
+					startOffset: 0,
+					endOffset: 10,
+					lineEndOffset: 10
+				};
+				const resolver = new PathResolver(() => true);
+				const readFile = () =>
+					'--8<-- [ start : section ]\n' +
+					'Content here\n' +
+					'--8<-- [ end : section ]';
+
+				const result = createPreviewContent(
+					location,
+					'/docs/main.md',
+					'/workspace',
+					'',
+					20,
+					200,
+					resolver,
+					readFile
+				);
+
+				assert.strictEqual(result, 'Content here');
+			});
+
+			it('should handle markers with multiple spaces', () => {
+				const location: SnippetLocation = {
+					snippet: { path: 'test.md', section: 'section' },
+					startOffset: 0,
+					endOffset: 10,
+					lineEndOffset: 10
+				};
+				const resolver = new PathResolver(() => true);
+				const readFile = () =>
+					'--8<--  [  start  :  section  ]\n' +
+					'Content here\n' +
+					'--8<--  [  end  :  section  ]';
+
+				const result = createPreviewContent(
+					location,
+					'/docs/main.md',
+					'/workspace',
+					'',
+					20,
+					200,
+					resolver,
+					readFile
+				);
+
+				assert.strictEqual(result, 'Content here');
+			});
+		});
+
+		describe('section markers with mixed content on same line', () => {
+			it('should handle marker with text before it', () => {
+				const location: SnippetLocation = {
+					snippet: { path: 'test.py', section: 'func' },
+					startOffset: 0,
+					endOffset: 10,
+					lineEndOffset: 10
+				};
+				const resolver = new PathResolver(() => true);
+				const readFile = () =>
+					'print("debug") # --8<-- [start:func]\n' +
+					'def my_function():\n' +
+					'    pass\n' +
+					'# --8<-- [end:func]';
+
+				const result = createPreviewContent(
+					location,
+					'/docs/main.md',
+					'/workspace',
+					'',
+					20,
+					200,
+					resolver,
+					readFile
+				);
+
+				assert.strictEqual(result, 'def my_function(): ⏎     pass');
+			});
+
+			it('should handle marker with text after it', () => {
+				const location: SnippetLocation = {
+					snippet: { path: 'test.py', section: 'func' },
+					startOffset: 0,
+					endOffset: 10,
+					lineEndOffset: 10
+				};
+				const resolver = new PathResolver(() => true);
+				const readFile = () =>
+					'--8<-- [start:func] # inline comment\n' +
+					'def my_function():\n' +
+					'    pass\n' +
+					'--8<-- [end:func] # end marker';
+
+				const result = createPreviewContent(
+					location,
+					'/docs/main.md',
+					'/workspace',
+					'',
+					20,
+					200,
+					resolver,
+					readFile
+				);
+
+				assert.strictEqual(result, 'def my_function(): ⏎     pass');
+			});
+
+			it('should handle marker with text before and after', () => {
+				const location: SnippetLocation = {
+					snippet: { path: 'test.c', section: 'func' },
+					startOffset: 0,
+					endOffset: 10,
+					lineEndOffset: 10
+				};
+				const resolver = new PathResolver(() => true);
+				const readFile = () =>
+					'/* prefix */ --8<-- [start:func] /* suffix */\n' +
+					'void my_function() {}\n' +
+					'/* prefix */ --8<-- [end:func] /* suffix */';
+
+				const result = createPreviewContent(
+					location,
+					'/docs/main.md',
+					'/workspace',
+					'',
+					20,
+					200,
+					resolver,
+					readFile
+				);
+
+				assert.strictEqual(result, 'void my_function() {}');
+			});
+		});
 	});
 });
