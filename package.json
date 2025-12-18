@@ -63,7 +63,11 @@
         },
         "mkdocsSnippetLens.strictMode": {
           "type": "string",
-          "enum": ["auto", "true", "false"],
+          "enum": [
+            "auto",
+            "true",
+            "false"
+          ],
           "default": "auto",
           "enumDescriptions": [
             "Automatically detect from mkdocs.yml if present (reads check_paths setting)",
@@ -74,6 +78,9 @@
         }
       }
     }
+  },
+  "dependencies": {
+    "js-yaml": "^4.1.1"
   },
   "scripts": {
     "vscode:prepublish": "npm run package",
@@ -102,6 +109,7 @@
   "devDependencies": {
     "@commitlint/cli": "^20.2.0",
     "@commitlint/config-conventional": "^20.2.0",
+    "@types/js-yaml": "^4.0.9",
     "@types/mocha": "^10.0.10",
     "@types/node": "^20.19.26",
     "@types/vscode": "^1.107.0",

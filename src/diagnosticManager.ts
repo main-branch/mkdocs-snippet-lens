@@ -2,30 +2,16 @@ import * as vscode from 'vscode';
 import { SnippetDetector } from './snippetDetector';
 import { PathResolver } from './pathResolver';
 import { SnippetLocator } from './snippetLocator';
-import { createDiagnosticInfos, DiagnosticSeverity } from './diagnosticCreator';
-
-/**
- * Converts a DiagnosticSeverity enum to VS Code DiagnosticSeverity
- * @param severity The diagnostic severity from our enum
- * @returns VS Code DiagnosticSeverity
- */
-function toVSCodeSeverity(severity: DiagnosticSeverity): vscode.DiagnosticSeverity {
-  switch (severity) {
-  case DiagnosticSeverity.Warning:
-    return vscode.DiagnosticSeverity.Warning;
-  case DiagnosticSeverity.Error:
-    return vscode.DiagnosticSeverity.Error;
-  default:
-    // Fallback for unexpected severities; TypeScript enums can receive invalid values at runtime.
-    return vscode.DiagnosticSeverity.Error;
-  }
-}
+import { createDiagnosticInfos } from './diagnosticCreator';
+import { DiagnosticSeverity, resolveDiagnosticSeverity } from './severityResolver';
+import { readMkdocsConfig } from './mkdocsConfigReader';
 
 /**
  * Manages diagnostic errors for snippet references
  */
 export class DiagnosticManager {
   private diagnostics: vscode.DiagnosticCollection;
+  private mkdocsCheckPaths: boolean = false;
 
   constructor(
     private detector: SnippetDetector,
@@ -33,6 +19,14 @@ export class DiagnosticManager {
     private locator: SnippetLocator
   ) {
     this.diagnostics = vscode.languages.createDiagnosticCollection('mkdocs-snippet-lens');
+  }
+
+  /**
+   * Loads MkDocs configuration and caches check_paths setting
+   */
+  async loadMkdocsConfig(workspaceRoot: string): Promise<void> {
+    const mkdocsConfig = await readMkdocsConfig(workspaceRoot);
+    this.mkdocsCheckPaths = mkdocsConfig?.checkPaths ?? false;
   }
 
   /**
@@ -52,10 +46,16 @@ export class DiagnosticManager {
     const workspaceRoot = workspaceFolder?.uri.fsPath || '';
     const config = vscode.workspace.getConfiguration('mkdocsSnippetLens');
     const basePath = config.get<string>('basePath', '');
+    const strictMode = config.get<string>('strictMode', 'auto');
+
+    // Determine diagnostic severity
+    const severity = resolveDiagnosticSeverity(strictMode, this.mkdocsCheckPaths);
 
     // Create diagnostic infos using the testable function
-    const diagnosticInfos = createDiagnosticInfos(locations, (path: string) =>
-      this.resolver.resolve(path, document.uri.fsPath, workspaceRoot, basePath)
+    const diagnosticInfos = createDiagnosticInfos(
+      locations,
+      (path: string) => this.resolver.resolve(path, document.uri.fsPath, workspaceRoot, basePath),
+      severity
     );
 
     // Convert to VS Code Diagnostics
@@ -63,11 +63,13 @@ export class DiagnosticManager {
       const start = document.positionAt(info.startOffset);
       const end = document.positionAt(info.endOffset);
       const range = new vscode.Range(start, end);
-
+      const vscodeSeverity = info.severity === DiagnosticSeverity.Error
+        ? vscode.DiagnosticSeverity.Error
+        : vscode.DiagnosticSeverity.Warning;
       const diagnostic = new vscode.Diagnostic(
         range,
         info.message,
-        toVSCodeSeverity(info.severity)
+        vscodeSeverity
       );
       diagnostic.source = 'mkdocs-snippet-lens';
       return diagnostic;

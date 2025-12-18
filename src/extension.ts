@@ -6,11 +6,21 @@ import { SnippetLinkProvider } from './snippetLinkProvider';
 import { PreviewManager } from './previewManager';
 import { SnippetHoverProvider } from './snippetHoverProvider';
 import { DiagnosticManager } from './diagnosticManager';
+import { setLogger } from './mkdocsConfigReader';
 
 /**
  * Activates the mkdocs-snippet-lens extension
  */
-export function activate(context: vscode.ExtensionContext) {
+export async function activate(context: vscode.ExtensionContext) {
+  // Create output channel for logging
+  const outputChannel = vscode.window.createOutputChannel('MkDocs Snippet Lens');
+  context.subscriptions.push(outputChannel);
+
+  // Set up logger for mkdocsConfigReader
+  setLogger({
+    log: (message: string) => outputChannel.appendLine(message),
+  });
+
   // Create core service instances
   const detector = new SnippetDetector();
   const resolver = new PathResolver();
@@ -18,6 +28,39 @@ export function activate(context: vscode.ExtensionContext) {
 
   // Create diagnostic manager for error reporting
   const diagnosticManager = new DiagnosticManager(detector, resolver, locator);
+
+  // Load MkDocs configuration on activation
+  const workspaceFolders = vscode.workspace.workspaceFolders;
+  if (workspaceFolders && workspaceFolders.length > 0) {
+    await diagnosticManager.loadMkdocsConfig(workspaceFolders[0].uri.fsPath);
+  }
+
+  // Watch for changes to mkdocs.yml/mkdocs.yaml in workspace root only
+  // Use pattern without '**/' to match only root-level files
+  const mkdocsWatcher = vscode.workspace.createFileSystemWatcher(
+    '{mkdocs.yml,mkdocs.yaml}',
+    false, // ignoreCreateEvents
+    false, // ignoreChangeEvents
+    false  // ignoreDeleteEvents
+  );
+
+  // Reload config and refresh diagnostics when mkdocs config changes
+  const reloadMkdocsConfig = async () => {
+    if (workspaceFolders && workspaceFolders.length > 0) {
+      await diagnosticManager.loadMkdocsConfig(workspaceFolders[0].uri.fsPath);
+
+      // Refresh diagnostics for all open markdown files
+      vscode.window.visibleTextEditors
+        .filter(editor => editor.document.languageId === 'markdown')
+        .forEach(editor => {
+          diagnosticManager.updateDiagnostics(editor.document);
+        });
+    }
+  };
+
+  mkdocsWatcher.onDidCreate(reloadMkdocsConfig);
+  mkdocsWatcher.onDidChange(reloadMkdocsConfig);
+  mkdocsWatcher.onDidDelete(reloadMkdocsConfig);
 
   // Register document link provider for markdown files
   const linkProvider = new SnippetLinkProvider(detector, resolver, locator);
@@ -77,7 +120,8 @@ export function activate(context: vscode.ExtensionContext) {
     diagnosticManager,
     changeDisposable,
     editorDisposable,
-    toggleCommand
+    toggleCommand,
+    mkdocsWatcher
   );
 }
 
