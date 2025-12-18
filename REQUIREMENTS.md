@@ -273,6 +273,7 @@ Requirement implementation status is marked as follows:
     - `;--8<-- "escaped.md"` - escaped snippet syntax (shows literally)
     - `--8<-- "https://example.com/file.md"` - URL snippet
   - **Block Format (Planned v0.2.0+):**
+
     ```markdown
     --8<--
     file1.md
@@ -280,6 +281,7 @@ Requirement implementation status is marked as follows:
     ; disabled.md
     --8<--
     ```
+
   - **Examples:**
 
     ```markdown

@@ -23,10 +23,13 @@ block-style previews are deferred until VS Code supports this capability.
   - [MVP Success Metrics](#mvp-success-metrics)
 - [v0.2.0 - Enhanced Previews](#v020---enhanced-previews)
   - [Features In Scope](#features-in-scope)
-    - [1. Named Section Support](#1-named-section-support)
-    - [2. Line Range Support](#2-line-range-support)
+    - [1. Named Section Support \[DONE in v0.1.1\]](#1-named-section-support-done-in-v011)
+    - [2. Advanced Line Range Support](#2-advanced-line-range-support)
     - [3. Per-Snippet Toggle](#3-per-snippet-toggle)
-    - [4. Configurable Preview Length](#4-configurable-preview-length)
+    - [4. Block Format Support](#4-block-format-support)
+    - [5. Disabled and Escaped Snippets](#5-disabled-and-escaped-snippets)
+    - [6. URL Snippets](#6-url-snippets)
+    - [7. Configurable Preview Length](#7-configurable-preview-length)
     - [5. Asynchronous File Loading](#5-asynchronous-file-loading)
   - [Development Tasks](#development-tasks)
 - [v0.3.0 - Robustness](#v030---robustness)
@@ -401,7 +404,8 @@ technical foundation.
 
 ## v0.2.0 - Enhanced Previews
 
-**Goal:** Complete advanced snippet syntax support and enhance user experience with per-snippet controls.
+**Goal:** Complete advanced snippet syntax support and enhance user experience with
+per-snippet controls.
 
 **Timeline:** 4 weeks (Weeks 5-8)
 
@@ -506,6 +510,7 @@ technical foundation.
 **Description:** Support multi-file block format syntax.
 
 **Syntax:**
+
 ```markdown
 --8<--
 file1.md
@@ -566,6 +571,7 @@ file3.md:10:20
 **Description:** Support including content from remote URLs.
 
 **Syntax:**
+
 ```markdown
 --8<-- "https://raw.githubusercontent.com/user/repo/main/file.md"
 ```
