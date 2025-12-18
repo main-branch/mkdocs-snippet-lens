@@ -73,6 +73,10 @@ This extension contributes the following settings:
   (default: 20)
 - `mkdocsSnippetLens.previewMaxChars`: Maximum number of characters to show in inline
   preview (default: 200)
+- `mkdocsSnippetLens.strictMode`: Control diagnostic severity for missing snippets
+  - `"auto"` (default): Automatically reads `check_paths` setting from `mkdocs.yml`
+  - `"true"`: Always show errors (red squiggles)
+  - `"false"`: Always show warnings (yellow squiggles)
 
 ## Commands
 

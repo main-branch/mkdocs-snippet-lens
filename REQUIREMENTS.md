@@ -459,23 +459,36 @@ def hello():
 
 ### 2.5 Feature: Error Handling
 
-- **[MVP]** Diagnostic errors (red squiggle) for file not found. Error message:
-  "Snippet file not found: 'path/to/file'". Other error types (invalid path,
-  permissions, section markers, unsaved file warnings, recursive context) are
-  **[Planned]**.
+- **[MVP]** Diagnostic warnings (yellow squiggle) for file not found by default,
+  with configurable severity via `strictMode` setting. Error message: "Snippet file
+  not found: 'path/to/file'". Auto-detection of MkDocs `check_paths` setting,
+  invalid path, permissions, section markers, unsaved file warnings, and recursive
+  context are **[Planned]**.
 
 All error conditions should prevent ghost text preview rendering and mark the file
-path with a red squiggly underline (diagnostic error). Error messages must include
-file and line number information, with full chain context for recursive snippets. All
-error messages must be i18n-ready (see Section 4.5 for detailed requirements).
+path with a diagnostic underline (warning or error based on `strictMode`). Error
+messages must include file and line number information, with full chain context for
+recursive snippets. All error messages must be i18n-ready (see Section 4.5 for
+detailed requirements).
 
 #### 2.5.1 Missing Files
 
-- **Visual Indicator:** Red squiggly underline on the file path.
-- **Error Message:**
-  - Format: "Snippet file not found: 'referenced_file' (in file.md:10)"
-  - For recursive snippets: "Snippet file not found: 'referenced_file' (in
-    parent_file.md:15 via root_file.md:5)"
+- **Visual Indicator:** Yellow squiggly underline (warning) by default, or red
+  squiggly underline (error) if `strictMode` is configured for strict checking.
+- **Diagnostic Severity:**
+  - Determined by `mkdocsSnippetLens.strictMode` setting:
+    - `"auto"` (default): Reads `check_paths` from `mkdocs.yml`
+      - `check_paths: false` or unspecified → Warning (yellow)
+      - `check_paths: true` → Error (red)
+      - If `mkdocs.yml` not found → Warning (matches MkDocs default)
+    - `"true"`: Always Error (red)
+    - `"false"`: Always Warning (yellow)
+- **Error/Warning Message:**
+  - Warning format: "Snippet file not found: 'referenced_file' (snippet will be
+    omitted by MkDocs) (in file.md:10)"
+  - Error format: "Snippet file not found: 'referenced_file' (MkDocs build will fail
+    with check_paths: true) (in file.md:10)"
+  - For recursive snippets: Include full chain context
 
 #### 2.5.2 Invalid Path Syntax
 
@@ -499,16 +512,25 @@ error messages must be i18n-ready (see Section 4.5 for detailed requirements).
 
 - **Condition:** Snippet section markers are specified but not found in the
   referenced file, OR line numbers are out of range.
-- **Visual Indicator:** Red squiggly underline on the file path.
-- **Error Message:**
-  - For named sections: "Section markers not found in 'referenced_file': section
-    'name' (in file.md:10)"
-  - For line numbers: "Line range out of bounds in 'referenced_file': lines X:Y
-    exceed file length N (in file.md:10)"
+- **Visual Indicator:** Yellow squiggly underline (warning) by default, or red
+  squiggly underline (error) if `strictMode` is configured for strict checking.
+- **Diagnostic Severity:** Determined by `mkdocsSnippetLens.strictMode` setting
+  (same logic as §2.5.1)
+- **Error/Warning Message:**
+  - Warning format for named sections: "Section 'name' not found in 'referenced_file'
+    (snippet will be omitted by MkDocs) (in file.md:10)"
+  - Error format for named sections: "Section 'name' not found in 'referenced_file'
+    (MkDocs build will fail with check_paths: true) (in file.md:10)"
+  - Warning format for line numbers: "Line range out of bounds in 'referenced_file':
+    lines X:Y exceed file length N (snippet will be omitted by MkDocs) (in
+    file.md:10)"
+  - Error format for line numbers: "Line range out of bounds in 'referenced_file':
+    lines X:Y exceed file length N (MkDocs build will fail with check_paths: true)
+    (in file.md:10)"
   - Include actual marker names/line numbers and file/line information.
   - For recursive snippets: Include the full chain.
-- **Note:** If a named section's start or end marker is missing, treat as an error
-  since both are required for a valid section.
+- **Note:** If a named section's start or end marker is missing, severity is
+  determined by `strictMode` setting.
 
 #### 2.5.5 Unsaved File with Relative Paths
 
@@ -718,8 +740,29 @@ context keys:
 ## 3. Configuration Settings
 
 - **[MVP]** `mkdocsSnippetLens.basePath`, `mkdocsSnippetLens.previewMaxLines`, and
-  `mkdocsSnippetLens.previewMaxChars` are implemented. Other settings and full
-  validation are **[Planned]**.
+  `mkdocsSnippetLens.previewMaxChars` are implemented. `mkdocsSnippetLens.strictMode`
+  with auto-detection of MkDocs configuration is **[Planned]**. Other settings and
+  full validation are **[Planned]**.
+
+- `mkdocsSnippetLens.strictMode`: (String enum) Control diagnostic severity for
+  missing snippets and invalid sections.
+  - *Options:* `"auto"`, `"true"`, `"false"`
+  - *Default:* `"auto"`
+  - `"auto"`: Automatically detect from `mkdocs.yml` if present in workspace root
+    - Reads `markdown_extensions` → `pymdownx.snippets` → `check_paths` setting
+    - `check_paths: false` or unspecified → Warnings (yellow squiggles)
+    - `check_paths: true` → Errors (red squiggles)
+    - If `mkdocs.yml` not found or parse fails → Warnings (matches MkDocs default)
+    - Supports both `mkdocs.yml` and `mkdocs.yaml` filenames
+  - `"true"`: Always show errors (red squiggles) for missing/invalid snippets
+  - `"false"`: Always show warnings (yellow squiggles) for missing/invalid snippets
+  - *Implementation Notes:*
+    - Requires YAML parser (e.g., `js-yaml` dependency)
+    - Config file is read on extension activation and when modified
+    - Uses file system watcher to detect `mkdocs.yml` changes
+    - For multi-root workspaces, reads config from workspace folder containing the
+      current markdown file
+    - Parse errors are logged to output channel and fall back to warnings
 
 - `mkdocsLens.basePath`: (String) The root directory to resolve snippet paths
   against.
