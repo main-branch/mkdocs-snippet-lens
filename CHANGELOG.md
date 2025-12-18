@@ -4,6 +4,50 @@ All notable changes to the "mkdocs-snippet-lens" extension will be documented in
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [0.2.0](https://github.com/main-branch/mkdocs-snippet-lens/compare/v0.1.1...v0.2.0) (2025-12-18)
+
+
+### Features
+
+* Add diagnostic severity levels for warnings vs errors ([4142956](https://github.com/main-branch/mkdocs-snippet-lens/commit/4142956d4405243493a1c12143395de606a660a8)), closes [#35](https://github.com/main-branch/mkdocs-snippet-lens/issues/35)
+* Add error handling for ambiguous/malformed snippet patterns ([dded27c](https://github.com/main-branch/mkdocs-snippet-lens/commit/dded27cea452296a7b12f85dd577841e83450227)), closes [#34](https://github.com/main-branch/mkdocs-snippet-lens/issues/34)
+* Add support for named sections, line ranges, and multiple ranges ([7362165](https://github.com/main-branch/mkdocs-snippet-lens/commit/73621659fecb9506b3ade6b51c41d7934e25dd9d))
+* Implement strictMode with auto-detection from mkdocs.yml ([86d8b8a](https://github.com/main-branch/mkdocs-snippet-lens/commit/86d8b8ae9b160537689a4e47d0ee00e098a38f8c))
+
+
+### Bug Fixes
+
+* Allow feat commits to bump minor version in pre-1.0.0 releases ([6c43c4b](https://github.com/main-branch/mkdocs-snippet-lens/commit/6c43c4b8f13320794723d6339223ac5200a936c3))
+* Support section markers embedded in comments ([50d70f4](https://github.com/main-branch/mkdocs-snippet-lens/commit/50d70f4c3bdbbc6f20b74bc03a405a014ce49510))
+
+
+### Documentation
+
+* Add PR creation guidelines to copilot instructions ([16fb4f3](https://github.com/main-branch/mkdocs-snippet-lens/commit/16fb4f38f2084fc961a94997bed3863f7f1ca737))
+* Add strictMode setting with auto-detection from mkdocs.yml ([330561a](https://github.com/main-branch/mkdocs-snippet-lens/commit/330561a851bae645ad6fc299a5dc4c73f613224e)), closes [#36](https://github.com/main-branch/mkdocs-snippet-lens/issues/36)
+* Clarify that CHANGELOG.md is automatically generated ([d305a8a](https://github.com/main-branch/mkdocs-snippet-lens/commit/d305a8a4522a348589498d5f9b90add0b2535027))
+* Document fallback behavior for invalid multi-range patterns ([0f73ca8](https://github.com/main-branch/mkdocs-snippet-lens/commit/0f73ca8c38c32b80b1479b77a2c23c8e789591a8)), closes [#33](https://github.com/main-branch/mkdocs-snippet-lens/issues/33)
+* Enhance TDD workflow instructions in copilot guidelines ([e1cf06c](https://github.com/main-branch/mkdocs-snippet-lens/commit/e1cf06c393d3077cfa0485db2a1db72cd0e8c144))
+* Update changelog policy in copilot instructions ([de37ffc](https://github.com/main-branch/mkdocs-snippet-lens/commit/de37ffc052ba539c25c47f56893a62bfb2ef75d2))
+* Update IMPLEMENTATION.md to reflect v0.2.0 actual scope ([832b6d4](https://github.com/main-branch/mkdocs-snippet-lens/commit/832b6d41bec6d2272430fd0621c9b09f4dc9a685))
+* Update README planned features to reflect v0.1.1 progress ([bd21bef](https://github.com/main-branch/mkdocs-snippet-lens/commit/bd21bef8431f824413eb7b89a98013ef3f982075))
+* Update status tags and documentation formatting ([eb0d40b](https://github.com/main-branch/mkdocs-snippet-lens/commit/eb0d40b9569150c81538d9a8db1f29cb0849ba13))
+
+
+### Build System
+
+* Enforce 2-space indentation with ESLint rules ([5043f57](https://github.com/main-branch/mkdocs-snippet-lens/commit/5043f573dbd96cf0d468143151d802a78453d27f))
+
+
+### Styles
+
+* Convert all code to 2-space indentation ([9dad49a](https://github.com/main-branch/mkdocs-snippet-lens/commit/9dad49a7f4ea98411108bd6081169207294f67e5))
+
+
+### Tests
+
+* Add comprehensive edge case tests for line range extraction ([7612612](https://github.com/main-branch/mkdocs-snippet-lens/commit/7612612a4f30b058ab5aa8ff8a6a97f9be1a1af6)), closes [#31](https://github.com/main-branch/mkdocs-snippet-lens/issues/31)
+
 ## [0.1.1](https://github.com/main-branch/mkdocs-snippet-lens/compare/v0.1.0...v0.1.1) (2025-12-16)
 
 
