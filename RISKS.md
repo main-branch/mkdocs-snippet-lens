@@ -16,13 +16,11 @@
   - [3.1 Visual Confusion with Ghost Text](#31-visual-confusion-with-ghost-text)
   - [3.2 Complexity Overwhelming Users](#32-complexity-overwhelming-users)
   - [3.3 Compatibility Issues with Other Extensions](#33-compatibility-issues-with-other-extensions)
-- [4. Project Management Risks](#4-project-management-risks)
-  - [4.1 Scope Creep](#41-scope-creep)
--- [5. Adoption & Market Risks](#5-adoption--market-risks)
-  - [5.1 Low User Adoption](#51-low-user-adoption)
--- [6. Maintenance & Sustainability Risks](#6-maintenance--sustainability-risks)
-  - [6.1 Dependency Obsolescence](#61-dependency-obsolescence)
-  - [6.2 Technical Debt Accumulation](#62-technical-debt-accumulation)
+- [4. Adoption \& Market Risks](#4-adoption--market-risks)
+  - [4.1 Low User Adoption](#41-low-user-adoption)
+- [5. Maintenance \& Sustainability Risks](#5-maintenance--sustainability-risks)
+  - [5.1 Dependency Obsolescence](#51-dependency-obsolescence)
+  - [5.2 Technical Debt Accumulation](#52-technical-debt-accumulation)
 - [Risk Monitoring \& Review](#risk-monitoring--review)
 
 This document identifies potential risks to the successful development, deployment,
@@ -95,6 +93,8 @@ limit adoption, especially for non-English speakers or users with disabilities.
 - **Impact:** Medium
 - **Overall Risk:** Medium
 
+**Related Issue:** [#53 - Accessibility: Add screen reader support and keyboard navigation](https://github.com/main-branch/mkdocs-snippet-lens/issues/53)
+
 **Mitigation Strategies:**
 
 - Follow VS Code accessibility guidelines ([Planned])
@@ -128,11 +128,11 @@ Linux due to different file system conventions.
 **Mitigation Strategies:**
 
 - Use VS Code's built-in path utilities (`vscode.Uri`, `path` module) instead of
-  string manipulation
-- Test thoroughly on all three platforms in CI/CD pipeline
-- Normalize paths early in processing pipeline
-- Handle case-sensitivity differences explicitly
-- Document platform-specific behavior where unavoidable
+  string manipulation ([DONE])
+- Test thoroughly on all three platforms in CI/CD pipeline ([DONE])
+- Normalize paths early in processing pipeline ([DONE])
+- Handle case-sensitivity differences explicitly ([DONE])
+- Document platform-specific behavior where unavoidable ([DONE])
 
 **Indicators:**
 
@@ -148,6 +148,8 @@ VS Code to become unresponsive.
 - **Likelihood:** Medium
 - **Impact:** High
 - **Overall Risk:** High
+
+**Related Issue:** [#51 - Performance: Implement file size limits and async loading](https://github.com/main-branch/mkdocs-snippet-lens/issues/51)
 
 **Mitigation Strategies:**
 
@@ -228,6 +230,8 @@ workspace, exposing sensitive data.
 - **Impact:** Critical
 - **Overall Risk:** High
 
+**Related Issue:** [#52 - Security: Implement path traversal protection](https://github.com/main-branch/mkdocs-snippet-lens/issues/52)
+
 **Mitigation Strategies:**
 
 - Strict path validation against workspace boundaries
@@ -252,6 +256,8 @@ files outside workspace.
 - **Likelihood:** Low
 - **Impact:** High
 - **Overall Risk:** Medium
+
+**Related Issue:** [#54 - Security: Implement symlink validation and protection](https://github.com/main-branch/mkdocs-snippet-lens/issues/54)
 
 **Mitigation Strategies:**
 
@@ -303,6 +309,8 @@ attempt to edit them.
 - **Likelihood:** Medium
 - **Impact:** Low
 - **Overall Risk:** Low
+
+**Related Issue:** [#55 - UX: Improve preview visual differentiation and add per-snippet toggles](https://github.com/main-branch/mkdocs-snippet-lens/issues/55)
 
 **Mitigation Strategies:**
 
@@ -366,35 +374,9 @@ preview extensions) could break functionality.
 - Decoration conflicts or visual glitches
 - Command palette conflicts
 
-## 4. Project Management Risks
+## 4. Adoption & Market Risks
 
-### 4.1 Scope Creep
-
-**Risk:** Adding too many features beyond MVP could delay release and increase
-complexity.
-
-- **Likelihood:** High
-- **Impact:** Medium
-- **Overall Risk:** High
-
-**Mitigation Strategies:**
-
-- Clearly define MVP in Implementation.md
-- Defer advanced features (recursive snippets, complex line ranges) to later versions
-- Use strict acceptance criteria for new features
-- Regular scope reviews during development
-- Just say "no" to feature requests that don't align with core value proposition
-- Use GitHub Projects to track and prioritize work
-
-**Indicators:**
-
-- Timeline slipping
-- Core features incomplete while working on "nice-to-haves"
-- Implementation document keeps growing
-
-## 5. Adoption & Market Risks
-
-### 5.1 Low User Adoption
+### 4.1 Low User Adoption
 
 **Risk:** MkDocs users may not discover or adopt the extension, limiting its impact.
 
@@ -417,9 +399,9 @@ complexity.
 - Minimal GitHub stars or engagement
 - No user feedback or issues filed
 
-## 6. Maintenance & Sustainability Risks
+## 5. Maintenance & Sustainability Risks
 
-### 6.1 Dependency Obsolescence
+### 5.1 Dependency Obsolescence
 
 **Risk:** Dependencies may become unmaintained or incompatible with future VS Code
 versions.
@@ -443,7 +425,7 @@ versions.
 - Deprecation warnings
 - Compatibility issues with new VS Code versions
 
-### 6.2 Technical Debt Accumulation
+### 5.2 Technical Debt Accumulation
 
 **Risk:** Rush to release or poor design decisions could create technical debt that
 hampers future development.
@@ -490,4 +472,4 @@ hampers future development.
 - Medium risks: Monitor and address as resources allow
 - Low risks: Accept and document
 
-**Last Updated:** December 10, 2025
+**Last Updated:** December 18, 2025
