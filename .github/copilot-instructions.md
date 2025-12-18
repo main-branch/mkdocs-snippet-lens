@@ -45,6 +45,7 @@ Each module should be in its own file under `src/` and have a corresponding test
 
 ### Snippet Detection (MVP)
 Use this regex pattern for v0.1.0:
+
 ```
 /--8<--\s+["']([^"']+)["']/g
 ```
