@@ -102,19 +102,15 @@ content directly into the editor is a high-value feature.
   - [9.1 Continuous Integration Pipeline](#91-continuous-integration-pipeline)
     - [9.1.1 Pull Request Validation (`pr-validation.yml`)](#911-pull-request-validation-pr-validationyml)
     - [9.1.2 Security Scanning (`security.yml`)](#912-security-scanning-securityyml)
-  - [9.2 Release Management with release-please](#92-release-management-with-release-please)
-    - [9.2.1 Release Please Configuration](#921-release-please-configuration)
-    - [9.2.2 Release Workflow (`release.yml`)](#922-release-workflow-releaseyml)
-    - [9.2.3 Version Management](#923-version-management)
-  - [9.3 Marketplace Publishing Requirements](#93-marketplace-publishing-requirements)
-    - [9.3.1 Pre-Publish Checklist](#931-pre-publish-checklist)
-    - [9.3.2 Publishing Process](#932-publishing-process)
+  - [9.2 Marketplace Publishing Requirements](#92-marketplace-publishing-requirements)
+    - [9.2.1 Pre-Publish Checklist](#921-pre-publish-checklist)
+    - [9.2.2 Publishing Process](#922-publishing-process)
     - [9.3.3 Rollback Procedure](#933-rollback-procedure)
-  - [9.4 Branch Protection and Workflow](#94-branch-protection-and-workflow)
-  - [9.5 Environment and Secrets Management](#95-environment-and-secrets-management)
-  - [9.6 Monitoring and Notifications](#96-monitoring-and-notifications)
-  - [9.7 Testing in CI/CD](#97-testing-in-cicd)
-  - [9.8 Documentation in CI/CD](#98-documentation-in-cicd)
+  - [9.3 Branch Protection and Workflow](#93-branch-protection-and-workflow)
+  - [9.4 Environment and Secrets Management](#94-environment-and-secrets-management)
+  - [9.5 Monitoring and Notifications](#95-monitoring-and-notifications)
+  - [9.6 Testing in CI/CD](#96-testing-in-cicd)
+  - [9.7 Documentation in CI/CD](#97-documentation-in-cicd)
 
 ## About This Document
 
@@ -2342,165 +2338,9 @@ Runs on schedule (weekly) and on pull requests.
 - Weekly scheduled run (every Monday)
 - On pull requests that modify `package.json` or `package-lock.json`
 
-### 9.2 Release Management with release-please
+### 9.2 Marketplace Publishing Requirements
 
-**Tool:** [release-please](https://github.com/googleapis/release-please) by Google
-
-**Strategy:** Conventional Commits + Automated Changelog
-
-#### 9.2.1 Release Please Configuration
-
-**Commit Convention:** [Conventional Commits](https://www.conventionalcommits.org/)
-
-**Required Commit Types:**
-
-- `feat:` - New feature (triggers MINOR version bump)
-- `fix:` - Bug fix (triggers PATCH version bump)
-- `docs:` - Documentation changes (no version bump)
-- `chore:` - Maintenance tasks (no version bump)
-- `test:` - Test changes (no version bump)
-- `refactor:` - Code refactoring (no version bump)
-- `BREAKING CHANGE:` - Breaking change (triggers MAJOR version bump)
-  - Include in commit footer or use `!` suffix: `feat!:`
-
-**Example Commits:**
-
-```text
-feat: add support for named section snippets
-
-fix: resolve path traversal vulnerability in symlink handling
-
-docs: update README with new toggle commands
-
-feat!: change default preview state to 'off'
-BREAKING CHANGE: Users who relied on previews being on by default will need to update settings
-```
-
-**Configuration File:** `.release-please-manifest.json`
-
-```json
-{
-  ".": "0.0.1"
-}
-```
-
-**Config File:** `release-please-config.json`
-
-```json
-{
-  "packages": {
-    ".": {
-      "release-type": "node",
-      "package-name": "mkdocs-snippet-lens",
-      "changelog-path": "CHANGELOG.md",
-      "bump-minor-pre-major": true,
-      "bump-patch-for-minor-pre-major": true,
-      "extra-files": [
-        "package.json"
-      ]
-    }
-  }
-}
-```
-
-#### 9.2.2 Release Workflow (`release.yml`)
-
-**Trigger:** On push to `main` branch
-
-**Jobs:**
-
-1. **Create or Update Release PR**
-   - Use `google-github-actions/release-please-action`
-   - Analyzes commits since last release
-   - Creates/updates a release PR with:
-     - Updated version in `package.json`
-     - Updated `CHANGELOG.md` with all changes
-     - Git tag for the new version
-   - Groups related changes by type (Features, Bug Fixes, etc.)
-
-2. **Build and Publish** (runs only when release PR is merged)
-   - Triggered by release-please creating a GitHub Release
-   - Runs on `ubuntu-latest` only (publishing needs single run)
-   - Steps:
-     1. Checkout code at release tag
-     2. Install dependencies (`npm ci`)
-     3. Run tests (`npm test`)
-     4. Build production package (`npm run package`)
-     5. Publish to VS Code Marketplace using `@vscode/vsce`
-     6. Upload .vsix to GitHub Release as asset
-
-**Required Secrets:**
-
-- `VSCE_PAT` - Personal Access Token for VS Code Marketplace publishing
-  - Obtained from Azure DevOps for VS Code Marketplace
-  - Stored in GitHub repository secrets
-  - Scoped to marketplace publishing only
-
-**Example Workflow Structure:**
-
-```yaml
-name: Release
-
-on:
-  push:
-    branches:
-      - main
-
-jobs:
-  release-please:
-    runs-on: ubuntu-latest
-    outputs:
-      release_created: ${{ steps.release.outputs.release_created }}
-      tag_name: ${{ steps.release.outputs.tag_name }}
-    steps:
-      - uses: google-github-actions/release-please-action@v4
-        id: release
-        with:
-          release-type: node
-          package-name: mkdocs-snippet-lens
-
-  publish:
-    needs: release-please
-    if: ${{ needs.release-please.outputs.release_created }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-      - run: npm ci
-      - run: npm test
-      - run: npm run package
-      - run: npx @vscode/vsce publish -p ${{ secrets.VSCE_PAT }}
-      - uses: actions/upload-release-asset@v1
-        # Upload .vsix to GitHub Release
-```
-
-#### 9.2.3 Version Management
-
-**Versioning Scheme:** Semantic Versioning (SemVer)
-
-- **Format:** MAJOR.MINOR.PATCH (e.g., 1.2.3)
-- **Initial Version:** 0.1.0 (pre-1.0 for initial development)
-- **Pre-1.0 Behavior:**
-  - Minor bumps for new features
-  - Patch bumps for bug fixes
-  - Breaking changes allowed without major bump (0.x.y is unstable)
-- **Post-1.0 Behavior:**
-  - Strict SemVer compliance
-  - MAJOR for breaking changes
-  - MINOR for new features
-  - PATCH for bug fixes
-
-**Version Sources:**
-
-- Single source of truth: `package.json` `version` field
-- Automatically updated by release-please
-- Git tags created automatically (e.g., `v1.2.3`)
-
-### 9.3 Marketplace Publishing Requirements
-
-#### 9.3.1 Pre-Publish Checklist
+#### 9.2.1 Pre-Publish Checklist
 
 Before first marketplace publication, ensure:
 
@@ -2520,7 +2360,7 @@ Before first marketplace publication, ensure:
   - `bugs`
   - `license`
 
-#### 9.3.2 Publishing Process
+#### 9.2.2 Publishing Process
 
 **Manual First Release:**
 
@@ -2565,7 +2405,7 @@ If a published version has critical issues:
    - Consider posting in marketplace Q&A
    - Update GitHub release notes if needed
 
-### 9.4 Branch Protection and Workflow
+### 9.3 Branch Protection and Workflow
 
 **Protected Branch:** `main`
 
@@ -2664,7 +2504,7 @@ commitlint:
 - Reword last commit: `git commit --amend`
 - Interactive rebase to fix old commits: `git rebase -i HEAD~n`
 
-### 9.5 Environment and Secrets Management
+### 9.4 Environment and Secrets Management
 
 **Required Secrets:**
 
@@ -2684,7 +2524,7 @@ commitlint:
 - No sensitive data in workflow files
 - All secrets via GitHub Secrets only
 
-### 9.6 Monitoring and Notifications
+### 9.5 Monitoring and Notifications
 
 **Build Status:**
 
@@ -2708,7 +2548,7 @@ commitlint:
 - Code coverage trend
 - Time from commit to release
 
-### 9.7 Testing in CI/CD
+### 9.6 Testing in CI/CD
 
 **Test Execution:**
 
@@ -2730,7 +2570,7 @@ commitlint:
 - Fail fast: stop other jobs if one platform fails
 - Archive platform-specific test results separately
 
-### 9.8 Documentation in CI/CD
+### 9.7 Documentation in CI/CD
 
 **Automated Checks:**
 
