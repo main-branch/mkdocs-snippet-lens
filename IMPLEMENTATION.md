@@ -31,34 +31,40 @@ block-style previews are deferred until VS Code supports this capability.
   - [Development Tasks (\[DONE\])](#development-tasks-done-1)
 - [v0.3.0 - Advanced Syntax and UX Enhancements](#v030---advanced-syntax-and-ux-enhancements)
   - [Features In Scope](#features-in-scope)
-    - [1. Advanced Line Range Support](#1-advanced-line-range-support)
-    - [2. Per-Snippet Toggle](#2-per-snippet-toggle)
-    - [3. Block Format Support](#3-block-format-support)
-    - [4. Disabled and Escaped Snippets](#4-disabled-and-escaped-snippets)
-    - [5. Configurable Preview Length](#5-configurable-preview-length)
+    - [1. Race Condition Fix (Quick Win) - Issue #48](#1-race-condition-fix-quick-win---issue-48)
+    - [2. Advanced Line Range Support](#2-advanced-line-range-support)
+    - [3. UX Improvements and Per-Snippet Toggle - Issue #55](#3-ux-improvements-and-per-snippet-toggle---issue-55)
+    - [4. Block Format Support](#4-block-format-support)
+    - [5. Disabled and Escaped Snippets](#5-disabled-and-escaped-snippets)
+    - [6. Configurable Preview Length](#6-configurable-preview-length)
+    - [7. Multi-Root Workspace Support (Optional) - Issue #47](#7-multi-root-workspace-support-optional---issue-47)
+  - [Development Tasks](#development-tasks)
 - [v0.4.0 - Performance and Robustness](#v040---performance-and-robustness)
   - [Features In Scope](#features-in-scope-1)
-    - [1. Asynchronous File Loading](#1-asynchronous-file-loading)
-    - [2. Recursive Snippet Processing](#2-recursive-snippet-processing)
-    - [2. Auto-Refresh on File Changes](#2-auto-refresh-on-file-changes)
-    - [3. Comprehensive Error Handling](#3-comprehensive-error-handling)
-    - [4. File Size Limits](#4-file-size-limits)
-    - [5. State Persistence](#5-state-persistence)
-  - [Development Tasks](#development-tasks)
+    - [1. Path Traversal Protection - Issue #52](#1-path-traversal-protection---issue-52)
+    - [2. Symlink Validation - Issue #54](#2-symlink-validation---issue-54)
+    - [3. Performance and File Size Limits - Issue #51](#3-performance-and-file-size-limits---issue-51)
+    - [4. Asynchronous File Loading (continued from above)](#4-asynchronous-file-loading-continued-from-above)
+    - [5. Recursive Snippet Processing](#5-recursive-snippet-processing)
+    - [6. Auto-Refresh on File Changes](#6-auto-refresh-on-file-changes)
+    - [7. Comprehensive Error Handling](#7-comprehensive-error-handling)
+    - [8. File Size Limits](#8-file-size-limits)
+    - [9. State Persistence](#9-state-persistence)
+  - [Development Tasks](#development-tasks-1)
 - [v0.5.0 - URL Snippets and Remote Content](#v050---url-snippets-and-remote-content)
   - [Features In Scope](#features-in-scope-2)
     - [1. URL Snippets](#1-url-snippets)
     - [2. HTTP Retry Logic](#2-http-retry-logic)
     - [3. Custom HTTP Headers](#3-custom-http-headers)
-  - [Development Tasks](#development-tasks-1)
+  - [Development Tasks](#development-tasks-2)
 - [v1.0.0 - Production Ready](#v100---production-ready)
   - [Features In Scope](#features-in-scope-3)
     - [1. Security Hardening](#1-security-hardening)
     - [2. Performance Optimization](#2-performance-optimization)
-    - [3. Accessibility Features](#3-accessibility-features)
+    - [3. Accessibility Features - Issue #53](#3-accessibility-features---issue-53)
     - [4. Complete Documentation](#4-complete-documentation)
     - [5. Marketplace Publishing Automation](#5-marketplace-publishing-automation)
-  - [Development Tasks](#development-tasks-2)
+  - [Development Tasks](#development-tasks-3)
 - [Command Implementation Schedule](#command-implementation-schedule)
   - [v0.1.0 - MVP Commands](#v010---mvp-commands)
   - [v0.2.0 - Enhanced Control Commands](#v020---enhanced-control-commands)
@@ -581,23 +587,97 @@ See v0.3.0 and later sections for rescheduled features.
 
 ## v0.3.0 - Advanced Syntax and UX Enhancements
 
-**Goal:** Implement advanced snippet syntax features (originally planned for v0.2.0)
-including per-snippet toggles, block format, and additional line range options.
+**Status:** In Planning
 
-**Timeline:** TBD
+**Goal:** Implement advanced snippet syntax features (originally planned for v0.2.0)
+including per-snippet toggles, block format, and additional line range options. Also
+includes critical UX improvements and robustness fixes.
+
+**Timeline:** Q1 2026 (estimated 6-8 weeks)
 
 **Success Criteria:**
 
+- Race condition in mkdocs.yml watcher fixed (Issue #48)
+- Per-snippet toggle with CodeLens implemented (Issue #55)
+- Improved visual differentiation for previews (Issue #55)
 - Advanced line range support (start-only, end-only, negative indexes) working
-- Per-snippet toggle with CodeLens implemented
 - Block format supported
 - Disabled and escaped snippets handled
+- Multi-root workspace support decision made (Issue #47 - defer to v0.4.0 or include)
 - Code coverage == 100%
 - Tests fail if coverage < 100%
 
+**Related GitHub Issues:**
+
+- [#48 - Prevent race conditions in mkdocs.yml file watcher
+  callback](https://github.com/main-branch/mkdocs-snippet-lens/issues/48)
+- [#55 - UX: Improve preview visual differentiation and add per-snippet
+  toggles](https://github.com/main-branch/mkdocs-snippet-lens/issues/55)
+- [#47 - Support multi-root workspaces for MkDocs config
+  auto-detection](https://github.com/main-branch/mkdocs-snippet-lens/issues/47)
+  (Optional)
+
 ### Features In Scope
 
-#### 1. Advanced Line Range Support
+#### 1. Race Condition Fix (Quick Win) - Issue #48
+
+**Priority:** HIGH - Quick win, should be completed first
+
+**Description:** Fix race conditions in mkdocs.yml file watcher callback to prevent
+multiple concurrent config reloads.
+
+**Problem:**
+
+- Multiple rapid saves of mkdocs.yml can trigger overlapping async config loads
+- Diagnostics refresh loop could operate on stale config data
+- Brief display of incorrect diagnostic severity during race window
+
+**Solution:**
+
+Implement semaphore/lock pattern with event coalescing:
+
+```typescript
+let isReloadingMkdocsConfig = false;
+let hasPendingMkdocsReload = false;
+
+const reloadMkdocsConfig = async () => {
+  if (!workspaceFolders || workspaceFolders.length === 0) {
+    return;
+  }
+
+  if (isReloadingMkdocsConfig) {
+    hasPendingMkdocsReload = true;
+    return;
+  }
+
+  isReloadingMkdocsConfig = true;
+  try {
+    do {
+      hasPendingMkdocsReload = false;
+      await diagnosticManager.loadMkdocsConfig(workspaceFolders[0].uri.fsPath);
+
+      vscode.window.visibleTextEditors
+        .filter(editor => editor.document.languageId === 'markdown')
+        .forEach(editor => {
+          diagnosticManager.updateDiagnostics(editor.document);
+        });
+    } while (hasPendingMkdocsReload);
+  } finally {
+    isReloadingMkdocsConfig = false;
+  }
+};
+```
+
+**Testing:**
+
+- Unit tests for semaphore logic
+- Integration tests simulating rapid config changes
+- Verify no race conditions with concurrent saves
+- Verify diagnostics always reflect latest config
+
+**Effort:** 1-2 days
+
+#### 2. Advanced Line Range Support
 
 **Description:** Complete remaining line range syntax variations.
 
@@ -605,7 +685,8 @@ including per-snippet toggles, block format, and additional line range options.
 
 - **Start-only ranges:** `file.ext:5` (line 5 to end)
 - **End-only ranges:** `file.ext::10` (start to line 10)
-- **Negative indexes:** `file.ext:-5` (last 5 lines), `file.ext:-10:-1` (range from end)
+- **Negative indexes:** `file.ext:-5` (last 5 lines), `file.ext:-10:-1` (range from
+  end)
 - 1-based line numbers (0 clamped to 1)
 - Negative indexes converted to positive based on file line count
 - Show diagnostic if range out of bounds
@@ -624,38 +705,72 @@ completed in v0.1.1. This feature adds the remaining advanced range syntax.
 - Unit tests for all line range variations
 - Edge cases: empty ranges, invalid ranges, EOF
 
-#### 2. Per-Snippet Toggle
+#### 3. UX Improvements and Per-Snippet Toggle - Issue #55
 
-**Description:** Toggle individual snippet previews independently.
+**Description:** Improve visual differentiation of ghost text previews and implement
+per-snippet toggle functionality.
 
-**Requirements:**
+**Phase 1: Visual Differentiation (Priority: HIGH)**
 
-- CodeLens above each snippet line
-- Label: "👁 Show Snippet" / "👁 Hide Snippet"
-- Click to toggle that specific preview
-- State persists during editor session
+- **[Preview] Label:** Add subtle `[Preview]` prefix to ghost text content
+  - Color: Match theme's `editorCodeLens.foreground`
+  - Style: Slightly dimmer than content (0.6 opacity)
+  - Format: `[Preview] content line 1...`
 
-**Commands:**
+- **Additional Visual Indicators:**
+  - Consider icon before `[Preview]` label (e.g., 👁 or 📄)
+  - Evaluate background color option (very subtle, theme-aware)
+  - Maintain subtle left border (already implemented)
 
-- `mkdocsLens.toggleCurrentPreview` - Toggle preview at cursor position
-- `mkdocsLens.showAllPreviews` - Show all previews
-- `mkdocsLens.hideAllPreviews` - Hide all previews
+- **Status Bar Indication:**
+  - Show status when previews are globally enabled
+  - Format: `$(eye) Snippet Previews: On` (clickable to toggle)
+  - Hide when previews are off to reduce clutter
+
+**Phase 2: Per-Snippet Toggle (Priority: MEDIUM)**
+
+- **CodeLens Implementation:**
+  - Display above each snippet line
+  - Label when hidden: "$(eye) Show Preview"
+  - Label when shown: "$(eye-closed) Hide Preview"
+  - Click to toggle that specific preview
+  - State persists during editor session
+
+- **Commands:**
+  - `mkdocsLens.toggleCurrentPreview` - Toggle preview at cursor position
+  - `mkdocsLens.showAllPreviews` - Show all previews
+  - `mkdocsLens.hideAllPreviews` - Hide all previews
+
+- **Keyboard Shortcuts:**
+  - `Ctrl+K Ctrl+P` / `Cmd+K Cmd+P` - Toggle preview at cursor
+  - Document in README and package.json keybindings
 
 **Implementation Notes:**
 
-- Implement `CodeLensProvider`
-- Track toggle state per snippet (Map of line numbers)
+- Start with Phase 1 (visual improvements) - quick wins
+- Implement `CodeLensProvider` for Phase 2
+- Track toggle state per snippet (Map of document URI + line number)
 - Update only affected decorations on toggle
 - Set context key `mkdocsLens:hasSnippetAtCursor` when cursor is on snippet line
+- Use workspace state for persistence
 
 **Testing:**
 
+- Unit tests for [Preview] label injection
+- Unit tests for status bar text generation
 - Integration tests for CodeLens provider
-- Test state management
+- Test state management with multiple documents
 - Test multiple snippets in same file
 - Test context key updates
+- User testing to validate visual distinction is sufficient
 
-#### 3. Block Format Support
+**User Testing:**
+
+- Solicit feedback on visual changes via GitHub discussion
+- Verify users can easily distinguish preview from actual content
+- Iterate on visual design based on feedback
+
+#### 4. Block Format Support
 
 **Description:** Support multi-file block format syntax.
 
@@ -690,7 +805,7 @@ file3.md:10:20
 - Test with mixed file types and syntax
 - Test disabled files within block
 
-#### 4. Disabled and Escaped Snippets
+#### 5. Disabled and Escaped Snippets
 
 **Description:** Support temporarily disabling and escaping snippet syntax.
 
@@ -716,7 +831,7 @@ file3.md:10:20
 - Test in single-line and block formats
 - Verify escaped syntax renders correctly
 
-#### 5. Configurable Preview Length
+#### 6. Configurable Preview Length
 
 **Description:** Make preview line limit configurable.
 
@@ -745,14 +860,146 @@ file3.md:10:20
 - Unit tests for truncation with various limits
 - Integration tests for configuration updates
 
+#### 7. Multi-Root Workspace Support (Optional) - Issue #47
+
+**Status:** DECISION NEEDED - Include in v0.3.0 or defer to v0.4.0?
+
+**Description:** Support multiple workspace folders, each with its own mkdocs.yml
+configuration.
+
+**Current Limitations:**
+
+- Only loads `mkdocs.yml` from first workspace folder
+- File watcher only monitors first workspace folder
+- DiagnosticManager doesn't maintain per-folder config state
+
+**Proposed Solution:**
+
+- Load config for all workspace folders on activation
+- Create file watcher per workspace folder
+- Update DiagnosticManager to store config per workspace folder (Map)
+- Use `vscode.workspace.getWorkspaceFolder(document.uri)` to determine correct config
+
+**Recommendation:** **Defer to v0.4.0** to keep v0.3.0 scope manageable. Most users
+have single-folder workspaces, and current behavior works correctly for them.
+
+**If included in v0.3.0:**
+
+**Implementation Notes:**
+
+- Refactor config loading to loop over all workspace folders
+- Create watcher array with one watcher per folder
+- Update DiagnosticManager with `Map<string, MkdocsConfig>`
+- Test workspace folder changes (add/remove folders)
+
+**Testing:**
+
+- Unit tests for per-folder config storage
+- Integration tests with mock multi-root workspace
+- Test document in different folders uses correct config
+- Test config change in one folder doesn't affect others
+
+**Effort:** 3-4 days
+
+### Development Tasks
+
+**Phase 0: Quick Wins (Week 1)**
+
+- [ ] Fix race condition in mkdocs.yml watcher (Issue #48)
+  - [ ] Implement semaphore pattern
+  - [ ] Add unit tests for lock logic
+  - [ ] Test with rapid config changes
+  - [ ] Create PR and merge
+
+**Phase 1: Visual Improvements (Week 2)**
+
+- [ ] Add [Preview] label to ghost text (Issue #55)
+  - [ ] Implement label injection in decoration
+  - [ ] Unit tests for label formatting
+  - [ ] Test with various themes
+- [ ] Add status bar indicator
+  - [ ] Show when previews enabled
+  - [ ] Make clickable to toggle
+  - [ ] Test status updates
+- [ ] User testing and feedback
+  - [ ] Create GitHub discussion for feedback
+  - [ ] Iterate on design if needed
+
+**Phase 2: Per-Snippet Toggles (Weeks 3-4)**
+
+- [ ] Implement CodeLens provider (Issue #55)
+  - [ ] Show/hide labels per snippet
+  - [ ] Click handler for toggle
+  - [ ] Unit tests for CodeLens generation
+- [ ] Implement toggle commands
+  - [ ] `toggleCurrentPreview` command
+  - [ ] `showAllPreviews` command
+  - [ ] `hideAllPreviews` command
+  - [ ] Keyboard shortcuts
+- [ ] State management
+  - [ ] Track per-snippet state
+  - [ ] Workspace state persistence
+  - [ ] Integration tests
+
+**Phase 3: Advanced Syntax (Weeks 5-6)**
+
+- [ ] Advanced line range support
+  - [ ] Start-only ranges (`:5`)
+  - [ ] End-only ranges (`::10`)
+  - [ ] Negative indexes (`:-5`)
+  - [ ] Comprehensive unit tests
+- [ ] Block format support
+  - [ ] Detect block syntax
+  - [ ] Parse multi-file blocks
+  - [ ] Unit and integration tests
+- [ ] Disabled/escaped snippets
+  - [ ] Detect `;` prefix
+  - [ ] Skip processing for disabled
+  - [ ] Unit tests
+
+**Phase 4: Configuration & Polish (Week 7)**
+
+- [ ] Configurable preview length
+  - [ ] Add setting to package.json
+  - [ ] Update preview logic
+  - [ ] React to config changes
+  - [ ] Unit tests
+- [ ] Multi-root workspace decision
+  - [ ] Review Issue #47
+  - [ ] Decide: include in v0.3.0 or defer to v0.4.0
+  - [ ] If included: implement per Phase 6
+
+**Phase 5: Testing & Release (Week 8)**
+
+- [ ] Achieve 100% test coverage
+- [ ] Configure tests to fail if coverage < 100%
+- [ ] Cross-platform testing (Windows, macOS, Linux)
+- [ ] Performance testing with many snippets
+- [ ] Update documentation
+  - [ ] README with new features
+  - [ ] CHANGELOG (auto-generated)
+  - [ ] Update copilot-instructions if needed
+- [ ] Create v0.3.0 release
+- [ ] Publish to marketplace
+
+**Optional Phase 6: Multi-Root Workspaces (if included)**
+
+- [ ] Refactor config loading for multiple folders
+- [ ] Create per-folder file watchers
+- [ ] Update DiagnosticManager with config map
+- [ ] Comprehensive testing
+- [ ] Documentation updates
+
 ---
 
 ## v0.4.0 - Performance and Robustness
 
-**Goal:** Add recursive snippet support, auto-refresh, asynchronous loading, and
-comprehensive error handling.
+**Status:** Planned
 
-**Timeline:** TBD
+**Goal:** Add recursive snippet support, auto-refresh, asynchronous loading, and
+comprehensive error handling. Implement security and performance safeguards.
+
+**Timeline:** Q2 2026 (estimated 8-10 weeks)
 
 **Success Criteria:**
 
@@ -760,12 +1007,125 @@ comprehensive error handling.
 - File changes trigger preview updates
 - Asynchronous file loading implemented
 - All error conditions properly handled
+- Path traversal protection implemented (Issue #52)
+- Symlink validation implemented (Issue #54)
+- File size limits and async loading (Issue #51)
+- Multi-root workspace support (Issue #47, if deferred from v0.3.0)
 - Code coverage == 100%
 - Tests fail if coverage < 100%
 
+**Related GitHub Issues:**
+
+- [#51 - Performance: Implement file size limits and async
+  loading](https://github.com/main-branch/mkdocs-snippet-lens/issues/51)
+- [#52 - Security: Implement path traversal
+  protection](https://github.com/main-branch/mkdocs-snippet-lens/issues/52)
+- [#54 - Security: Implement symlink validation and
+  protection](https://github.com/main-branch/mkdocs-snippet-lens/issues/54)
+- [#47 - Support multi-root
+  workspaces](https://github.com/main-branch/mkdocs-snippet-lens/issues/47) (if
+  deferred from v0.3.0)
+
 ### Features In Scope
 
-#### 1. Asynchronous File Loading
+#### 1. Path Traversal Protection - Issue #52
+
+**Priority:** HIGH - Security requirement
+
+**Description:** Prevent snippet paths from accessing files outside workspace
+boundaries.
+
+**Requirements:**
+
+- Validate all paths resolve within workspace folder
+- Normalize paths and check resolved absolute paths
+- Block paths with `..` that escape workspace
+- Add `enablePathTraversalProtection` setting (enabled by default)
+- Log all blocked access attempts to output channel
+- Show error diagnostic for blocked paths
+
+**Implementation Notes:**
+
+- Use `workspace.getWorkspaceFolder()` to determine boundaries
+- Normalize paths using `path.resolve()` and `path.normalize()`
+- Compare resolved paths against workspace root
+- Handle Windows drive letters and UNC paths
+
+**Testing:**
+
+- Unit tests with malicious path patterns (`../../../etc/passwd`)
+- Test absolute paths outside workspace
+- Test Windows-specific paths (`C:/Windows/System32/...`)
+- Cross-platform path resolution testing
+
+**Effort:** 2-3 days
+
+#### 2. Symlink Validation - Issue #54
+
+**Priority:** HIGH - Security requirement
+
+**Description:** Safely resolve and validate symbolic links.
+
+**Requirements:**
+
+- Resolve symlinks to final target paths
+- Validate final target is within workspace
+- Detect and block circular symlinks
+- Implement symlink depth limit (40 levels)
+- Add `followSymlinks` setting (consider defaulting to false)
+- Handle broken/dangling symlinks gracefully
+
+**Implementation Notes:**
+
+- Use `fs.realpath()` for symlink resolution
+- Track resolution depth to prevent infinite loops
+- Validate final path after resolution
+- Log symlink resolutions to output channel
+
+**Testing:**
+
+- Unit tests for symlink resolution
+- Test circular symlinks (A → B → A)
+- Test deep symlink chains (>40 levels)
+- Test symlinks pointing outside workspace
+- Test broken symlinks
+
+**Effort:** 3-4 days
+
+#### 3. Performance and File Size Limits - Issue #51
+
+**Priority:** HIGH - Performance requirement
+
+**Description:** Implement safeguards for large files and many snippets.
+
+**Requirements:**
+
+- Maximum file size limit (default 1MB, configurable)
+- Asynchronous file I/O with cancellation tokens
+- Debounce snippet detection during typing
+- Limit concurrent file operations (max 10)
+- Implement incremental processing
+- LRU cache with size limits
+- Display warnings for oversized files
+
+**Implementation Notes:**
+
+- Check file size before reading with `fs.stat()`
+- Use `workspace.fs.readFile()` (async API)
+- Implement cancellation token pattern
+- Add timeouts to prevent hanging (5 seconds max)
+- Cache with TTL and size limits
+
+**Testing:**
+
+- Unit tests with various file sizes
+- Test files at/near/over limit
+- Test concurrent operations
+- Performance benchmarks
+
+**Effort:** 4-5 days
+
+#### 4. Asynchronous File Loading (continued from above)
 
 **Description:** Load snippet files asynchronously to avoid blocking UI.
 
@@ -788,7 +1148,7 @@ comprehensive error handling.
 - Test cancellation behavior
 - Test race conditions
 
-#### 2. Recursive Snippet Processing
+#### 5. Recursive Snippet Processing
 
 **Description:** Expand nested snippet references in previews.
 
@@ -814,7 +1174,7 @@ comprehensive error handling.
 - Test mixed valid/circular references
 - Fuzz testing with random chains
 
-#### 2. Auto-Refresh on File Changes
+#### 6. Auto-Refresh on File Changes
 
 **Description:** Update previews when snippet files are modified.
 
@@ -839,7 +1199,7 @@ comprehensive error handling.
 - Test dependency chain updates
 - Test debouncing behavior
 
-#### 3. Comprehensive Error Handling
+#### 7. Comprehensive Error Handling
 
 **Description:** Handle all error conditions specified in requirements.
 
@@ -866,7 +1226,7 @@ comprehensive error handling.
 - Integration tests verifying diagnostics
 - Test error messages format
 
-#### 4. File Size Limits
+#### 8. File Size Limits
 
 **Description:** Prevent loading extremely large files.
 
@@ -899,7 +1259,7 @@ comprehensive error handling.
 - Unit tests with various file sizes
 - Test with files at/near/over limit
 
-#### 5. State Persistence
+#### 9. State Persistence
 
 **Description:** Remember preview state across VS Code sessions.
 
@@ -937,43 +1297,90 @@ comprehensive error handling.
 
 ### Development Tasks
 
-**Week 9: Recursive Processing**
+**Phase 1: Security (Weeks 1-2)**
 
-- [ ] Implement recursive snippet expander
-- [ ] Circular reference detection
-- [ ] Error context tracking
-- [ ] Extensive testing
+- [ ] Implement path traversal protection (Issue #52)
+  - [ ] Path validation logic
+  - [ ] Workspace boundary checking
+  - [ ] Unit tests with malicious paths
+  - [ ] Cross-platform testing
+- [ ] Implement symlink validation (Issue #54)
+  - [ ] Symlink resolution with `fs.realpath()`
+  - [ ] Circular reference detection
+  - [ ] Depth limit enforcement
+  - [ ] Comprehensive testing
 
-**Week 10: Auto-Refresh**
+**Phase 2: Performance (Weeks 3-4)**
 
-- [ ] Implement file system watchers
-- [ ] Dependency tracking
-- [ ] Cache invalidation
-- [ ] Debouncing logic
-- [ ] Implement commands: `mkdocsLens.refreshCurrentPreview`
+- [ ] Implement file size limits (Issue #51)
+  - [ ] Add `maxFileSize` setting
+  - [ ] Check size before loading
+  - [ ] Display warnings for large files
+  - [ ] Unit tests
+- [ ] Implement async file loading
+  - [ ] Use `workspace.fs.readFile()`
+  - [ ] Cancellation token pattern
+  - [ ] Loading indicators
+  - [ ] Race condition tests
 
-**Week 11: Error Handling**
+**Phase 3: Advanced Features (Weeks 5-7)**
 
-- [ ] All error types implemented
-- [ ] File size limits
-- [ ] Improved error messages
+- [ ] Recursive snippet processing
+  - [ ] Recursive expander implementation
+  - [ ] Circular reference detection
+  - [ ] Depth limit and timeout
+  - [ ] Extensive testing
+- [ ] Auto-refresh on file changes
+  - [ ] File system watchers
+  - [ ] Dependency tracking
+  - [ ] Cache invalidation
+  - [ ] Debouncing logic
+
+**Phase 4: Error Handling & Polish (Week 8)**
+
+- [ ] Comprehensive error handling
+  - [ ] All error types from requirements
+  - [ ] Error context chains
+  - [ ] Improved error messages
+  - [ ] Integration tests
 - [ ] State persistence
-- [ ] Implement commands: `mkdocsLens.goToNextSnippet`,
-  `mkdocsLens.goToPreviousSnippet`
+  - [ ] Implement workspace state storage
+  - [ ] Test all three modes
+  - [ ] Test across sessions
 
-**Week 12: Testing & Release**
+**Phase 5: Multi-Root Workspaces (Weeks 9-10, if included)**
+
+- [ ] Implement multi-root workspace support (Issue #47, if deferred from v0.3.0)
+  - [ ] Per-folder config loading
+  - [ ] Multiple file watchers
+  - [ ] DiagnosticManager refactor
+  - [ ] Comprehensive testing
+
+**Phase 6: Testing & Release (Weeks 9-10 or 11-12)**
 
 - [ ] Achieve 100% test coverage
 - [ ] Configure tests to fail if coverage < 100%
 - [ ] Cross-platform testing
-- [ ] Performance testing
+- [ ] Performance benchmarks
+  - [ ] Large file handling
+  - [ ] Many snippets in one file
+  - [ ] Recursive depth testing
+- [ ] Security testing
+  - [ ] Penetration testing with malicious paths
+  - [ ] Symlink exploit attempts
+- [ ] Documentation updates
+  - [ ] README with security features
+  - [ ] CHANGELOG (auto-generated)
+  - [ ] Security documentation
 - [ ] Create v0.4.0 release
+- [ ] Publish to marketplace
 
 ---
 
 ## v0.5.0 - URL Snippets and Remote Content
 
-**Goal:** Support including content from remote URLs with proper caching and security.
+**Goal:** Support including content from remote URLs with proper caching and
+security.
 
 **Timeline:** TBD
 
@@ -1081,20 +1488,28 @@ comprehensive error handling.
 
 ## v1.0.0 - Production Ready
 
-**Goal:** Security hardening, performance optimization, complete documentation. Ready
-for marketplace publication.
+**Status:** Planned
 
-**Timeline:** 4 weeks (Weeks 13-16)
+**Goal:** Security hardening, performance optimization, complete documentation,
+accessibility features. Ready for marketplace publication.
+
+**Timeline:** Q3 2026 (estimated 6-8 weeks)
 
 **Success Criteria:**
 
 - All security requirements met
 - Performance targets achieved (< 50ms sync, < 200ms perceived)
+- Full accessibility features implemented (Issue #53)
 - Full documentation complete
 - Code coverage == 100%
 - Tests fail if coverage < 100%
 - CI/CD pipeline operational (fails on coverage < 100%)
 - Published to VS Code Marketplace
+
+**Related GitHub Issues:**
+
+- [#53 - Accessibility: Add screen reader support and keyboard
+  navigation](https://github.com/main-branch/mkdocs-snippet-lens/issues/53)
 
 ### Features In Scope
 
@@ -1145,15 +1560,19 @@ for marketplace publication.
 - Load testing with many snippets
 - Memory profiling
 
-#### 3. Accessibility Features
+#### 3. Accessibility Features - Issue #53
+
+**Priority:** HIGH - User inclusion requirement
 
 **Requirements:**
 
-- Hover provider showing snippet content
-- Screen reader compatible
-- High contrast theme support
-- Keyboard navigation for all features
-- Status announcements for toggles
+- Follow VS Code accessibility guidelines
+- Ensure all commands are keyboard accessible
+- Add screen reader support for snippet previews
+- Add status announcements for actions
+- Test with NVDA, JAWS, VoiceOver
+- Add ARIA labels for UI elements
+- Prepare messages for future localization
 
 **Implementation Notes:**
 
