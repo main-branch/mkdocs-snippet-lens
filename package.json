@@ -60,6 +60,17 @@
           "default": 200,
           "minimum": 10,
           "description": "Maximum number of characters to show in inline preview"
+        },
+        "mkdocsSnippetLens.strictMode": {
+          "type": "string",
+          "enum": ["auto", "true", "false"],
+          "default": "auto",
+          "enumDescriptions": [
+            "Automatically detect from mkdocs.yml if present (reads check_paths setting)",
+            "Always show errors (red squiggles) for missing snippets",
+            "Always show warnings (yellow squiggles) for missing snippets"
+          ],
+          "description": "Control diagnostic severity for missing snippets. 'auto' reads from mkdocs.yml check_paths setting."
         }
       }
     }
