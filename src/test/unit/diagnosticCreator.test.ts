@@ -1,27 +1,9 @@
 import * as assert from 'assert';
-import { createDiagnosticInfos, DiagnosticSeverity, getSeverityLevel } from '../../diagnosticCreator';
+import { createDiagnosticInfos } from '../../diagnosticCreator';
 import { SnippetLocation } from '../../snippetLocator';
+import { DiagnosticSeverity } from '../../severityResolver';
 
 describe('DiagnosticCreator', () => {
-  describe('getSeverityLevel', () => {
-    it('should return 2 for Error severity', () => {
-      assert.strictEqual(getSeverityLevel(DiagnosticSeverity.Error), 2);
-    });
-
-    it('should return 1 for Warning severity', () => {
-      assert.strictEqual(getSeverityLevel(DiagnosticSeverity.Warning), 1);
-    });
-
-    it('should throw error for invalid severity value', () => {
-      // Test defensive programming for invalid enum values at runtime
-      const invalidSeverity = 'invalid' as unknown as DiagnosticSeverity;
-      assert.throws(
-        () => getSeverityLevel(invalidSeverity),
-        /Unsupported DiagnosticSeverity: invalid/
-      );
-    });
-  });
-
   describe('createDiagnosticInfos', () => {
     it('should create diagnostic for unresolved path', () => {
       const locations: SnippetLocation[] = [
@@ -35,7 +17,7 @@ describe('DiagnosticCreator', () => {
 
       const resolvePath = (path: string) => undefined;
 
-      const diagnostics = createDiagnosticInfos(locations, resolvePath);
+      const diagnostics = createDiagnosticInfos(locations, resolvePath, DiagnosticSeverity.Error);
 
       assert.strictEqual(diagnostics.length, 1);
       assert.strictEqual(diagnostics[0].message, "Snippet file not found: 'missing.txt'");
@@ -56,7 +38,7 @@ describe('DiagnosticCreator', () => {
 
       const resolvePath = (path: string) => '/absolute/path/to/found.txt';
 
-      const diagnostics = createDiagnosticInfos(locations, resolvePath);
+      const diagnostics = createDiagnosticInfos(locations, resolvePath, DiagnosticSeverity.Error);
 
       assert.strictEqual(diagnostics.length, 0);
     });
@@ -93,13 +75,13 @@ describe('DiagnosticCreator', () => {
         return undefined;
       };
 
-      const diagnostics = createDiagnosticInfos(locations, resolvePath);
+      const diagnostics = createDiagnosticInfos(locations, resolvePath, DiagnosticSeverity.Warning);
 
       assert.strictEqual(diagnostics.length, 1);
       assert.strictEqual(diagnostics[0].message, "Snippet file not found: 'missing.txt'");
       assert.strictEqual(diagnostics[0].startOffset, 30);
       assert.strictEqual(diagnostics[0].endOffset, 41);
-      assert.strictEqual(diagnostics[0].severity, DiagnosticSeverity.Error);
+      assert.strictEqual(diagnostics[0].severity, DiagnosticSeverity.Warning);
     });
 
     it('should return empty array when all paths resolve', () => {
@@ -120,7 +102,7 @@ describe('DiagnosticCreator', () => {
 
       const resolvePath = (path: string) => `/absolute/path/to/${path}`;
 
-      const diagnostics = createDiagnosticInfos(locations, resolvePath);
+      const diagnostics = createDiagnosticInfos(locations, resolvePath, DiagnosticSeverity.Error);
 
       assert.strictEqual(diagnostics.length, 0);
     });
@@ -129,7 +111,7 @@ describe('DiagnosticCreator', () => {
       const locations: SnippetLocation[] = [];
       const resolvePath = (path: string) => undefined;
 
-      const diagnostics = createDiagnosticInfos(locations, resolvePath);
+      const diagnostics = createDiagnosticInfos(locations, resolvePath, DiagnosticSeverity.Error);
 
       assert.strictEqual(diagnostics.length, 0);
     });
@@ -152,7 +134,7 @@ describe('DiagnosticCreator', () => {
 
       const resolvePath = (path: string) => undefined;
 
-      const diagnostics = createDiagnosticInfos(locations, resolvePath);
+      const diagnostics = createDiagnosticInfos(locations, resolvePath, DiagnosticSeverity.Error);
 
       assert.strictEqual(diagnostics.length, 2);
       assert.strictEqual(diagnostics[0].message, "Snippet file not found: 'missing1.txt'");
@@ -178,7 +160,7 @@ describe('DiagnosticCreator', () => {
 
       const resolvePath = (path: string) => '/absolute/path/to/file.md';
 
-      const diagnostics = createDiagnosticInfos(locations, resolvePath);
+      const diagnostics = createDiagnosticInfos(locations, resolvePath, DiagnosticSeverity.Warning);
 
       assert.strictEqual(diagnostics.length, 1);
       assert.strictEqual(diagnostics[0].message, 'Multi-range pattern contains non-numeric part: "invalid"');
@@ -210,13 +192,13 @@ describe('DiagnosticCreator', () => {
 
       const resolvePath = (path: string) => path === 'file.md' ? '/absolute/path/to/file.md' : undefined;
 
-      const diagnostics = createDiagnosticInfos(locations, resolvePath);
+      const diagnostics = createDiagnosticInfos(locations, resolvePath, DiagnosticSeverity.Error);
 
       assert.strictEqual(diagnostics.length, 2);
       assert.strictEqual(diagnostics[0].message, "Snippet file not found: 'missing.txt'");
       assert.strictEqual(diagnostics[0].severity, DiagnosticSeverity.Error);
       assert.strictEqual(diagnostics[1].message, 'Multi-range pattern contains malformed range: "1:"');
-      assert.strictEqual(diagnostics[1].severity, DiagnosticSeverity.Warning);
+      assert.strictEqual(diagnostics[1].severity, DiagnosticSeverity.Error);
     });
 
     it('should not create ambiguous diagnostic when pattern is not ambiguous', () => {
@@ -234,7 +216,7 @@ describe('DiagnosticCreator', () => {
 
       const resolvePath = (path: string) => '/absolute/path/to/file.md';
 
-      const diagnostics = createDiagnosticInfos(locations, resolvePath);
+      const diagnostics = createDiagnosticInfos(locations, resolvePath, DiagnosticSeverity.Error);
 
       assert.strictEqual(diagnostics.length, 0);
     });

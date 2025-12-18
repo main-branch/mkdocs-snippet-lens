@@ -245,7 +245,8 @@ The following are explicitly NOT assumed and represent potential future enhancem
 Requirement implementation status is marked as follows:
 
 - **[DONE]** Implemented in v0.1.0 (see CHANGELOG)
-- **[Planned]** Deferred to a future release (see IMPLEMENTATION.md)
+- **[PARTIAL]** Basic implementation completed, but additional features planned
+- **[PLANNED]** Deferred to a future release (see IMPLEMENTATION.md)
 
 ### 2.1 Snippet Detection
 
@@ -253,9 +254,9 @@ Requirement implementation status is marked as follows:
   'path/to/file.ext'` syntax including named sections (`:section`), explicit line
   ranges (`:start:end`), and multiple ranges (`:1:3,5:7`). Block format, start-only
   ranges, end-only ranges, negative indexes, disabled/escaped snippets, and URL
-  snippets are **[Planned]**.
+  snippets are **[PLANNED]**.
 - **[DONE] Trigger Events:** Detection occurs on file open and save. Debounced live
-  typing detection is **[Planned]**.
+  typing detection is **[PLANNED]**.
 
 - **Pattern Matching:** The extension must actively scan open Markdown (`.md`) files
   for the standard MkDocs snippet syntax:
@@ -347,7 +348,7 @@ Requirement implementation status is marked as follows:
   faded, italic ghost text. Limited to first 20 lines, with truncation indicator.
   Manual global toggle only (OFF by default). Per-snippet toggles, CodeLens, state
   persistence, recursive expansion, named sections, line ranges, and auto-refresh are
-  **[Planned]**.
+  **[PLANNED]**.
 
 - **Visual Indicator:** Display the contents of the referenced file directly below
   the snippet line.
@@ -412,7 +413,7 @@ Requirement implementation status is marked as follows:
   snippet reference, a preview of the referenced file is shown, truncated to a
   configurable number of lines (default: 20). If the file is longer, a truncation
   message is displayed. Advanced formatting, section/range support, and error context
-  are **[Planned]**.
+  are **[PLANNED]**.
 
 Provide hover tooltips as an accessible alternative to ghost text decorations.
 
@@ -459,11 +460,11 @@ def hello():
 
 ### 2.5 Feature: Error Handling
 
-- **[MVP]** Diagnostic warnings (yellow squiggle) for file not found by default,
+- **[PARTIAL]** Diagnostic warnings (yellow squiggle) for file not found by default,
   with configurable severity via `strictMode` setting. Error message: "Snippet file
   not found: 'path/to/file'". Auto-detection of MkDocs `check_paths` setting,
   invalid path, permissions, section markers, unsaved file warnings, and recursive
-  context are **[Planned]**.
+  context are **[PLANNED]**.
 
 All error conditions should prevent ghost text preview rendering and mark the file
 path with a diagnostic underline (warning or error based on `strictMode`). Error
@@ -549,9 +550,9 @@ detailed requirements).
 
 ### 2.6 Feature: Command Palette Commands
 
-- **[MVP]** Global toggle command: "MkDocs Snippet Lens: Toggle All Previews". Other
+- **[PARTIAL]** Global toggle command: "MkDocs Snippet Lens: Toggle All Previews". Other
   commands (per-snippet toggle, navigation, copy, open to side, clear cache, output
-  channel, context keys, keybindings) are **[Planned]**.
+  channel, context keys, keybindings) are **[PLANNED]**.
 
 The extension must provide user-accessible commands through the VS Code Command
 Palette for controlling preview behavior and navigating snippets.
@@ -739,10 +740,10 @@ context keys:
 
 ## 3. Configuration Settings
 
-- **[MVP]** `mkdocsSnippetLens.basePath`, `mkdocsSnippetLens.previewMaxLines`, and
-  `mkdocsSnippetLens.previewMaxChars` are implemented. `mkdocsSnippetLens.strictMode`
-  with auto-detection of MkDocs configuration is **[Planned]**. Other settings and
-  full validation are **[Planned]**.
+- **[PARTIAL]** `mkdocsSnippetLens.basePath`, `mkdocsSnippetLens.previewMaxLines`,
+  `mkdocsSnippetLens.previewMaxChars`, and `mkdocsSnippetLens.strictMode` with
+  auto-detection of MkDocs configuration are implemented. Other settings and full
+  validation are **[PLANNED]**.
 
 - `mkdocsSnippetLens.strictMode`: (String enum) Control diagnostic severity for
   missing snippets and invalid sections.
@@ -870,9 +871,9 @@ clear feedback to users.
 
 ## 4. Non-Functional Requirements
 
-- **[MVP]** Extension works on Windows, macOS, and Linux. No telemetry. Path
+- **[PARTIAL]** Extension works on Windows, macOS, and Linux. No telemetry. Path
   traversal protection, symlink handling, file size/resource limits, and i18n are
-  **[Planned]**.
+  **[PLANNED]**.
 
 ### 4.1 Platform & Environment
 
@@ -1069,9 +1070,9 @@ clear feedback to users.
 
 ## 5. Technical Specifications & Constraints
 
-- **[MVP]** Uses Text Decorations API for ghost text. Path resolution precedence is
+- **[PARTIAL]** Uses Text Decorations API for ghost text. Path resolution precedence is
   implemented as described. Multi-root workspace support, async loading, advanced
-  performance/resource management, and accessibility enhancements are **[Planned]**.
+  performance/resource management, and accessibility enhancements are **[PLANNED]**.
 
 ### 5.1 "Ghost Text" Implementation Strategy
 
@@ -1818,12 +1819,12 @@ and development tooling without collecting user telemetry.
 
 ## 6. User Stories
 
-- **[MVP]**
+- **[PARTIAL]**
   1. Click filename in snippet reference to open file.
   2. See code being snipped inline (ghost text).
   3. Preview is read-only and faded.
 
-- **[Planned]**
+- **[PLANNED]**
   - All other user stories requiring advanced features (sections, ranges, recursion,
     accessibility, etc.).
 
@@ -1840,8 +1841,8 @@ and development tooling without collecting user telemetry.
 
 ## 7. Documentation Requirements
 
-- **[MVP]** README.md and CHANGELOG.md are maintained. CONTRIBUTING.md, advanced
-  visual assets, and architecture docs are **[Planned]**.
+- **[PARTIAL]** README.md and CHANGELOG.md are maintained. CONTRIBUTING.md, advanced
+  visual assets, and architecture docs are **[PLANNED]**.
 
 ### 7.1 User Documentation
 
@@ -2108,9 +2109,9 @@ When publishing to VS Code Marketplace, prepare:
 
 ## 8. Testing Requirements
 
-- **[MVP]** 100% test coverage for MVP features (pattern matching, path resolution,
+- **[PARTIAL]** 100% test coverage for MVP features (pattern matching, path resolution,
   error handling, link provider, ghost text preview). Advanced edge cases,
-  recursive/circular, and accessibility tests are **[Planned]**.
+  recursive/circular, and accessibility tests are **[PLANNED]**.
 
 ### 8.1 Coverage Targets
 
@@ -2264,9 +2265,9 @@ Use dependency injection where possible to make mocking easier.
 
 ## 9. CI/CD and Release Management Requirements
 
-- **[MVP]** CI runs lint, type check, tests, and build verification. Release-please
+- **[PARTIAL]** CI runs lint, type check, tests, and build verification. Release-please
   manages changelog and versioning. Security scanning, advanced release automation,
-  and documentation checks are **[Planned]**.
+  and documentation checks are **[PLANNED]**.
 
 ### 9.1 Continuous Integration Pipeline
 

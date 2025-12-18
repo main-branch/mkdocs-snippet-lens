@@ -44,7 +44,8 @@ suite('DiagnosticManager Integration Tests', () => {
 
     assert.strictEqual(snippetDiagnostics.length, 1);
     assert.strictEqual(snippetDiagnostics[0].message, "Snippet file not found: 'this-file-does-not-exist.txt'");
-    assert.strictEqual(snippetDiagnostics[0].severity, vscode.DiagnosticSeverity.Error);
+    // Default behavior (strictMode: auto with no mkdocs.yml) should be Warning
+    assert.strictEqual(snippetDiagnostics[0].severity, vscode.DiagnosticSeverity.Warning);
   });
 
   test('should create multiple diagnostics for multiple missing files', async function() {
@@ -130,21 +131,26 @@ suite('DiagnosticManager Integration Tests', () => {
     }
 
     // We expect 2 diagnostics:
-    // 1. Ambiguous pattern warning
-    // 2. File not found error (because file.md doesn't exist)
+    // 1. Ambiguous pattern (with configured severity)
+    // 2. File not found (with configured severity)
+    // Both should have the same severity determined by strictMode configuration
     assert.strictEqual(snippetDiagnostics.length, 2);
 
-    // Find the ambiguous pattern warning
-    const ambiguousWarning = snippetDiagnostics.find(d =>
-      d.message.includes('Multi-range pattern') && d.severity === vscode.DiagnosticSeverity.Warning
+    // Find the ambiguous pattern diagnostic
+    const ambiguousDiagnostic = snippetDiagnostics.find(d =>
+      d.message.includes('Multi-range pattern')
     );
-    assert.ok(ambiguousWarning, 'Should have ambiguous pattern warning');
-    assert.strictEqual(ambiguousWarning.message, 'Multi-range pattern contains non-numeric part: "invalid"');
+    assert.ok(ambiguousDiagnostic, 'Should have ambiguous pattern diagnostic');
+    assert.strictEqual(ambiguousDiagnostic.message, 'Multi-range pattern contains non-numeric part: "invalid"');
+    // Default behavior (strictMode: auto with no mkdocs.yml) should be Warning
+    assert.strictEqual(ambiguousDiagnostic.severity, vscode.DiagnosticSeverity.Warning);
 
-    // Find the file not found error
-    const fileNotFoundError = snippetDiagnostics.find(d =>
-      d.message.includes('Snippet file not found') && d.severity === vscode.DiagnosticSeverity.Error
+    // Find the file not found diagnostic
+    const fileNotFoundDiagnostic = snippetDiagnostics.find(d =>
+      d.message.includes('Snippet file not found')
     );
-    assert.ok(fileNotFoundError, 'Should have file not found error');
+    assert.ok(fileNotFoundDiagnostic, 'Should have file not found diagnostic');
+    // Both diagnostics should have the same severity
+    assert.strictEqual(fileNotFoundDiagnostic.severity, vscode.DiagnosticSeverity.Warning);
   });
 });
