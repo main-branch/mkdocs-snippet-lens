@@ -21,27 +21,38 @@ block-style previews are deferred until VS Code supports this capability.
   - [Development Tasks (\[DONE\])](#development-tasks-done)
   - [Additional MVP Feature (\[DONE\])](#additional-mvp-feature-done)
   - [MVP Success Metrics](#mvp-success-metrics)
-- [v0.2.0 - Enhanced Previews](#v020---enhanced-previews)
+- [v0.2.0 - Enhanced Diagnostics and Error Handling](#v020---enhanced-diagnostics-and-error-handling)
+  - [Features In Scope (\[DONE\])](#features-in-scope-done-1)
+    - [1. StrictMode with Auto-Detection \[DONE\]](#1-strictmode-with-auto-detection-done)
+    - [2. Enhanced Error Diagnostics \[DONE\]](#2-enhanced-error-diagnostics-done)
+    - [3. Section Markers in Comments \[DONE\]](#3-section-markers-in-comments-done)
+    - [4. Named Section Support \[DONE in v0.1.1\]](#4-named-section-support-done-in-v011)
+  - [Features Deferred from Original v0.2.0 Plan](#features-deferred-from-original-v020-plan)
+  - [Development Tasks (\[DONE\])](#development-tasks-done-1)
+- [v0.3.0 - Advanced Syntax and UX Enhancements](#v030---advanced-syntax-and-ux-enhancements)
   - [Features In Scope](#features-in-scope)
-    - [1. Named Section Support \[DONE in v0.1.1\]](#1-named-section-support-done-in-v011)
-    - [2. Advanced Line Range Support](#2-advanced-line-range-support)
-    - [3. Per-Snippet Toggle](#3-per-snippet-toggle)
-    - [4. Block Format Support](#4-block-format-support)
-    - [5. Disabled and Escaped Snippets](#5-disabled-and-escaped-snippets)
-    - [6. URL Snippets](#6-url-snippets)
-    - [7. Configurable Preview Length](#7-configurable-preview-length)
-    - [5. Asynchronous File Loading](#5-asynchronous-file-loading)
-  - [Development Tasks](#development-tasks)
-- [v0.3.0 - Robustness](#v030---robustness)
+    - [1. Advanced Line Range Support](#1-advanced-line-range-support)
+    - [2. Per-Snippet Toggle](#2-per-snippet-toggle)
+    - [3. Block Format Support](#3-block-format-support)
+    - [4. Disabled and Escaped Snippets](#4-disabled-and-escaped-snippets)
+    - [5. Configurable Preview Length](#5-configurable-preview-length)
+- [v0.4.0 - Performance and Robustness](#v040---performance-and-robustness)
   - [Features In Scope](#features-in-scope-1)
-    - [1. Recursive Snippet Processing](#1-recursive-snippet-processing)
+    - [1. Asynchronous File Loading](#1-asynchronous-file-loading)
+    - [2. Recursive Snippet Processing](#2-recursive-snippet-processing)
     - [2. Auto-Refresh on File Changes](#2-auto-refresh-on-file-changes)
     - [3. Comprehensive Error Handling](#3-comprehensive-error-handling)
     - [4. File Size Limits](#4-file-size-limits)
     - [5. State Persistence](#5-state-persistence)
+  - [Development Tasks](#development-tasks)
+- [v0.5.0 - URL Snippets and Remote Content](#v050---url-snippets-and-remote-content)
+  - [Features In Scope](#features-in-scope-2)
+    - [1. URL Snippets](#1-url-snippets)
+    - [2. HTTP Retry Logic](#2-http-retry-logic)
+    - [3. Custom HTTP Headers](#3-custom-http-headers)
   - [Development Tasks](#development-tasks-1)
 - [v1.0.0 - Production Ready](#v100---production-ready)
-  - [Features In Scope](#features-in-scope-2)
+  - [Features In Scope](#features-in-scope-3)
     - [1. Security Hardening](#1-security-hardening)
     - [2. Performance Optimization](#2-performance-optimization)
     - [3. Accessibility Features](#3-accessibility-features)
@@ -146,11 +157,13 @@ features to deliver value incrementally while managing complexity and risk.
 ## Release Strategy Overview
 
 | Release | Target Date | Focus | Key Deliverables |
-|---------|-------------|-------|------------------|
-| v0.1.0 (MVP) | Week 4 | Core functionality proof-of-concept | Basic snippet detection, file links, simple previews |
-| v0.2.0 | Week 8 | Advanced syntax & UX | Complete line range syntax, block format, disabled/escaped snippets, URL snippets, per-snippet toggles |
-| v0.3.0 | Week 12 | Robustness | Recursive snippets, auto-refresh, error handling |
-| v1.0.0 | Week 16 | Production ready | Security hardening, performance optimization, documentation |
+| --------- | ------------- | ------- | ------------------ |
+| v0.1.0 (MVP) | ✅ Complete | Core functionality proof-of-concept | Basic snippet detection, file links, simple previews |
+| v0.2.0 | ✅ Complete | Enhanced diagnostics and error handling | StrictMode, diagnostic severity, ambiguous pattern detection |
+| v0.3.0 | TBD | Advanced syntax and UX | Per-snippet toggles, block format, disabled/escaped snippets, advanced line ranges |
+| v0.4.0 | TBD | Performance and robustness | Recursive snippets, auto-refresh, async loading |
+| v0.5.0 | TBD | Remote content | URL snippets, HTTP caching, retry logic |
+| v1.0.0 | TBD | Production ready | Security hardening, performance optimization, full documentation |
 | v1.1.0+ | Future | Advanced features | Multi-root workspaces, advanced settings, accessibility |
 
 ---
@@ -402,27 +415,111 @@ technical foundation.
 
 ---
 
-## v0.2.0 - Enhanced Previews
+## v0.2.0 - Enhanced Diagnostics and Error Handling
 
-**Goal:** Complete advanced snippet syntax support and enhance user experience with
-per-snippet controls.
+**Status:** [DONE] — v0.2.0 is complete. All features below are implemented.
 
-**Timeline:** 4 weeks (Weeks 5-8)
+**Goal:** Enhance diagnostic capabilities with configurable severity levels, improve
+error handling for ambiguous patterns, and implement strictMode with auto-detection
+from mkdocs.yml.
+
+**Timeline:** Completed December 2025
 
 **Success Criteria:**
 
-- All MkDocs snippet syntax variations supported (except recursive expansion)
-- Block format works correctly
-- Start-only, end-only, and negative index ranges work correctly
-- Disabled and escaped snippets handled properly
-- URL snippets functional with proper caching and error handling
-- Per-snippet toggles implemented
-- Code coverage == 100%
-- Tests fail if coverage < 100%
+- ✅ StrictMode with auto-detection from mkdocs.yml
+- ✅ Diagnostic severity levels (warnings vs errors) configurable
+- ✅ Error handling for ambiguous/malformed snippet patterns
+- ✅ Support for section markers embedded in comments
+- ✅ Comprehensive test coverage for edge cases
+- ✅ Code coverage == 100%
+- ✅ Tests fail if coverage < 100%
 
-### Features In Scope
+**Note:** This release focused on robustness and error handling rather than the
+originally planned advanced syntax features. The original v0.2.0 scope (per-snippet
+toggles, block format, URL snippets, etc.) has been deferred to v0.3.0 and beyond
+based on user feedback prioritizing diagnostic improvements.
 
-#### 1. Named Section Support [DONE in v0.1.1]
+### Features In Scope ([DONE])
+
+#### 1. StrictMode with Auto-Detection [DONE]
+
+**Description:** Control diagnostic severity (errors vs warnings) with automatic
+detection from mkdocs.yml configuration.
+
+**Status:** ✅ Complete - see CHANGELOG.md v0.2.0
+
+**Requirements:**
+
+- New setting `mkdocsSnippetLens.strictMode` with three modes:
+  - `"auto"` (default): Reads `check_paths` setting from `mkdocs.yml`
+  - `"true"`: Always show errors (red squiggles)
+  - `"false"`: Always show warnings (yellow squiggles)
+- Automatic mkdocs.yml detection and parsing
+- Respects mkdocs.yml location in workspace
+
+**Implementation:**
+
+- Added `mkdocsConfigReader.ts` module
+- Parses YAML configuration
+- Falls back to warnings if mkdocs.yml not found
+- Integrated with diagnostic severity resolution
+
+**Testing:**
+
+- Unit tests for mkdocs.yml parsing
+- Tests for all three strictMode values
+- Edge cases: missing files, invalid YAML, nested plugins config
+
+#### 2. Enhanced Error Diagnostics [DONE]
+
+**Description:** Improved error messages and diagnostics for ambiguous or malformed
+snippet patterns.
+
+**Status:** ✅ Complete - see CHANGELOG.md v0.2.0
+
+**Requirements:**
+
+- Detect ambiguous multi-range patterns (e.g., `file.md:1:3,invalid`)
+- Display warning diagnostics with specific error messages
+- Fallback to section reference when pattern is ambiguous
+- Clear user-facing error messages explaining the issue
+
+**Implementation:**
+
+- Enhanced pattern detection in `snippetDetector.ts`
+- Added validation for multi-range numeric patterns
+- Diagnostic warnings for malformed patterns
+
+**Testing:**
+
+- Comprehensive edge case tests for line range extraction
+- Tests for non-numeric parts in ranges
+- Tests for incomplete range patterns
+
+#### 3. Section Markers in Comments [DONE]
+
+**Description:** Support section markers embedded in code comments.
+
+**Status:** ✅ Complete - see CHANGELOG.md v0.2.0
+
+**Requirements:**
+
+- Detect `--8<-- [start:name]` and `--8<-- [end:name]` in comments
+- Language-aware comment detection
+- Works with various comment styles (Python #, JavaScript //, etc.)
+
+**Implementation:**
+
+- Updated section marker detection regex
+- Handles markers with or without comment prefixes
+
+**Testing:**
+
+- Unit tests for section markers in comments
+- Tests for various programming languages
+
+#### 4. Named Section Support [DONE in v0.1.1]
 
 **Note:** Named sections were implemented ahead of schedule in v0.1.1.
 
@@ -450,7 +547,57 @@ per-snippet controls.
 - Test various comment styles (Python, JavaScript, YAML, etc.)
 - Test missing/mismatched section markers
 
-#### 2. Advanced Line Range Support
+### Features Deferred from Original v0.2.0 Plan
+
+The following features were originally planned for v0.2.0 but have been moved to
+future releases (v0.3.0+) to prioritize diagnostic improvements and error handling:
+
+- Advanced line range support (start-only, end-only, negative indexes)
+- Per-snippet toggle with CodeLens
+- Block format support
+- Disabled and escaped snippets
+- URL snippets
+- Configurable preview length
+- Asynchronous file loading
+
+See v0.3.0 and later sections for rescheduled features.
+
+### Development Tasks ([DONE])
+
+- [x] Implement mkdocsConfigReader module
+- [x] Add strictMode setting with auto/true/false options
+- [x] Parse mkdocs.yml for check_paths plugin configuration
+- [x] Integrate strictMode with diagnostic severity resolution
+- [x] Enhance error detection for ambiguous/malformed patterns
+- [x] Add diagnostic warnings for invalid multi-range patterns
+- [x] Support section markers embedded in comments
+- [x] Comprehensive edge case testing for line range extraction
+- [x] Unit tests for mkdocs.yml parsing and strictMode
+- [x] Documentation updates (README, REQUIREMENTS, copilot-instructions)
+- [x] Enforce 2-space indentation across codebase
+- [x] Create v0.2.0 release
+
+---
+
+## v0.3.0 - Advanced Syntax and UX Enhancements
+
+**Goal:** Implement advanced snippet syntax features (originally planned for v0.2.0)
+including per-snippet toggles, block format, and additional line range options.
+
+**Timeline:** TBD
+
+**Success Criteria:**
+
+- Advanced line range support (start-only, end-only, negative indexes) working
+- Per-snippet toggle with CodeLens implemented
+- Block format supported
+- Disabled and escaped snippets handled
+- Code coverage == 100%
+- Tests fail if coverage < 100%
+
+### Features In Scope
+
+#### 1. Advanced Line Range Support
 
 **Description:** Complete remaining line range syntax variations.
 
@@ -463,7 +610,8 @@ per-snippet controls.
 - Negative indexes converted to positive based on file line count
 - Show diagnostic if range out of bounds
 
-**Note:** Explicit ranges (`:5:10`) and multiple ranges (`:1:3,5:6`) were completed in v0.1.1.
+**Note:** Basic explicit ranges (`:5:10`) and multiple ranges (`:1:3,5:6`) were
+completed in v0.1.1. This feature adds the remaining advanced range syntax.
 
 **Implementation Notes:**
 
@@ -476,7 +624,7 @@ per-snippet controls.
 - Unit tests for all line range variations
 - Edge cases: empty ranges, invalid ranges, EOF
 
-#### 3. Per-Snippet Toggle
+#### 2. Per-Snippet Toggle
 
 **Description:** Toggle individual snippet previews independently.
 
@@ -487,9 +635,11 @@ per-snippet controls.
 - Click to toggle that specific preview
 - State persists during editor session
 
-**Commands Implemented:**
+**Commands:**
 
 - `mkdocsLens.toggleCurrentPreview` - Toggle preview at cursor position
+- `mkdocsLens.showAllPreviews` - Show all previews
+- `mkdocsLens.hideAllPreviews` - Hide all previews
 
 **Implementation Notes:**
 
@@ -505,7 +655,7 @@ per-snippet controls.
 - Test multiple snippets in same file
 - Test context key updates
 
-#### 4. Block Format Support
+#### 3. Block Format Support
 
 **Description:** Support multi-file block format syntax.
 
@@ -540,7 +690,7 @@ file3.md:10:20
 - Test with mixed file types and syntax
 - Test disabled files within block
 
-#### 5. Disabled and Escaped Snippets
+#### 4. Disabled and Escaped Snippets
 
 **Description:** Support temporarily disabling and escaping snippet syntax.
 
@@ -566,53 +716,7 @@ file3.md:10:20
 - Test in single-line and block formats
 - Verify escaped syntax renders correctly
 
-#### 6. URL Snippets
-
-**Description:** Support including content from remote URLs.
-
-**Syntax:**
-
-```markdown
---8<-- "https://raw.githubusercontent.com/user/repo/main/file.md"
-```
-
-**Requirements:**
-
-- Download content from HTTP/HTTPS URLs
-- Apply configurable timeout (default: 10 seconds)
-- Apply configurable max size (default: ~32 MiB)
-- Show diagnostic on download failure
-- Cache downloaded content (memory + disk)
-- Support all line range/section syntax with URLs
-- Nested snippets within URL content must also be URLs (no local files)
-
-**Security Considerations:**
-
-- Validate URL schemes (only http/https)
-- Respect max size limits
-- Handle timeouts gracefully
-- Consider workspace trust settings
-
-**Implementation Notes:**
-
-- Use VS Code's fetch API or Node.js https module
-- Implement download cache with TTL
-- Add configuration settings for timeout/size
-- Path resolver must distinguish URLs from local paths
-
-**Testing:**
-
-- Unit tests for URL detection
-- Integration tests with mock HTTP server
-- Test timeout and size limit enforcement
-- Test nested snippet restrictions
-
-**Out of Scope for v0.2.0:**
-
-- Retry logic for failed downloads (planned for v0.3.0)
-- Custom HTTP headers (planned for v0.3.0)
-
-#### 7. Configurable Preview Length
+#### 5. Configurable Preview Length
 
 **Description:** Make preview line limit configurable.
 
@@ -641,7 +745,27 @@ file3.md:10:20
 - Unit tests for truncation with various limits
 - Integration tests for configuration updates
 
-#### 5. Asynchronous File Loading
+---
+
+## v0.4.0 - Performance and Robustness
+
+**Goal:** Add recursive snippet support, auto-refresh, asynchronous loading, and
+comprehensive error handling.
+
+**Timeline:** TBD
+
+**Success Criteria:**
+
+- Recursive snippets work without crashes
+- File changes trigger preview updates
+- Asynchronous file loading implemented
+- All error conditions properly handled
+- Code coverage == 100%
+- Tests fail if coverage < 100%
+
+### Features In Scope
+
+#### 1. Asynchronous File Loading
 
 **Description:** Load snippet files asynchronously to avoid blocking UI.
 
@@ -664,60 +788,7 @@ file3.md:10:20
 - Test cancellation behavior
 - Test race conditions
 
-### Development Tasks
-
-**Week 5: Named Sections**
-
-- [ ] Implement section marker parser
-- [ ] Extend snippet detection for sections
-- [ ] Add section extraction logic
-- [ ] Unit tests for sections
-
-**Week 6: Line Ranges**
-
-- [ ] Extend snippet detection for line ranges
-- [ ] Implement line extraction logic
-- [ ] Add range validation
-- [ ] Unit tests for line ranges
-
-**Week 7: Enhanced UX**
-
-- [ ] Implement CodeLens provider
-- [ ] Per-snippet toggle state management
-- [ ] Implement commands: `mkdocsLens.showAllPreviews`, `mkdocsLens.hideAllPreviews`
-- [ ] Implement command: `mkdocsLens.toggleCurrentPreview`
-- [ ] Implement command: `mkdocsLens.refreshAllPreviews`
-- [ ] Set context keys: `mkdocsLens:hasSnippetAtCursor`, `mkdocsLens:hasSnippets`
-- [ ] Configurable preview lines
-- [ ] Async file loading
-
-**Week 8: Polish & Release**
-
-- [ ] Integration tests
-- [ ] Bug fixes
-- [ ] Update documentation
-- [ ] Create v0.2.0 release
-
----
-
-## v0.3.0 - Robustness
-
-**Goal:** Add recursive snippet support, auto-refresh, and comprehensive error
-handling.
-
-**Timeline:** 4 weeks (Weeks 9-12)
-
-**Success Criteria:**
-
-- Recursive snippets work without crashes
-- File changes trigger preview updates
-- All error conditions properly handled
-- Code coverage == 100%
-- Tests fail if coverage < 100%
-
-### Features In Scope
-
-#### 1. Recursive Snippet Processing
+#### 2. Recursive Snippet Processing
 
 **Description:** Expand nested snippet references in previews.
 
@@ -896,7 +967,115 @@ handling.
 - [ ] Configure tests to fail if coverage < 100%
 - [ ] Cross-platform testing
 - [ ] Performance testing
-- [ ] Create v0.3.0 release
+- [ ] Create v0.4.0 release
+
+---
+
+## v0.5.0 - URL Snippets and Remote Content
+
+**Goal:** Support including content from remote URLs with proper caching and security.
+
+**Timeline:** TBD
+
+**Success Criteria:**
+
+- URL snippets functional with HTTP/HTTPS
+- Download caching implemented (memory + disk)
+- Timeout and size limits enforced
+- Security validation for URL schemes
+- Code coverage == 100%
+- Tests fail if coverage < 100%
+
+### Features In Scope
+
+#### 1. URL Snippets
+
+**Description:** Support including content from remote URLs.
+
+**Syntax:**
+
+```markdown
+--8<-- "https://raw.githubusercontent.com/user/repo/main/file.md"
+```
+
+**Requirements:**
+
+- Download content from HTTP/HTTPS URLs
+- Apply configurable timeout (default: 10 seconds)
+- Apply configurable max size (default: ~32 MiB)
+- Show diagnostic on download failure
+- Cache downloaded content (memory + disk)
+- Support all line range/section syntax with URLs
+- Nested snippets within URL content must also be URLs (no local files)
+
+**Security Considerations:**
+
+- Validate URL schemes (only http/https)
+- Respect max size limits
+- Handle timeouts gracefully
+- Consider workspace trust settings
+
+**Implementation Notes:**
+
+- Use VS Code's fetch API or Node.js https module
+- Implement download cache with TTL
+- Add configuration settings for timeout/size
+- Path resolver must distinguish URLs from local paths
+
+**Testing:**
+
+- Unit tests for URL detection
+- Integration tests with mock HTTP server
+- Test timeout and size limit enforcement
+- Test nested snippet restrictions
+
+#### 2. HTTP Retry Logic
+
+**Description:** Retry failed downloads with exponential backoff.
+
+**Requirements:**
+
+- Configurable retry count (default: 3)
+- Exponential backoff strategy
+- Show progress in status bar
+- Allow user to cancel retries
+
+**Testing:**
+
+- Unit tests for retry logic
+- Integration tests with simulated failures
+
+#### 3. Custom HTTP Headers
+
+**Description:** Allow custom headers for authenticated requests.
+
+**Settings:**
+
+```json
+{
+  "mkdocsLens.httpHeaders": {
+    "type": "object",
+    "default": {},
+    "description": "Custom HTTP headers for URL snippets"
+  }
+}
+```
+
+**Security Notes:**
+
+- Never log header values
+- Support authentication tokens securely
+
+### Development Tasks
+
+- [ ] Implement URL detection and validation
+- [ ] HTTP client with timeout and size limits
+- [ ] Download cache implementation
+- [ ] Retry logic with exponential backoff
+- [ ] Custom HTTP headers support
+- [ ] Security testing for URL schemes
+- [ ] Integration tests with mock HTTP server
+- [ ] Create v0.5.0 release
 
 ---
 
