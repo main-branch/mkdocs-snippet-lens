@@ -4,6 +4,14 @@ All notable changes to the "mkdocs-snippet-lens" extension will be documented in
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [0.2.1](https://github.com/main-branch/mkdocs-snippet-lens/compare/v0.2.0...v0.2.1) (2025-12-19)
+
+
+### Documentation
+
+* Update IMPLEMENTATION.md with v0.3.0 detailed plan and GitHub issue cross-references ([095cc0d](https://github.com/main-branch/mkdocs-snippet-lens/commit/095cc0d0dd3f23ed41c9c9dc520093577b5d7a96))
+* Update RISKS.md with GitHub issue links and post-v0.2.0 status ([73ed0a1](https://github.com/main-branch/mkdocs-snippet-lens/commit/73ed0a1e72500cd341992982f55691244b31364e))
+
 ## [0.2.0](https://github.com/main-branch/mkdocs-snippet-lens/compare/v0.1.1...v0.2.0) (2025-12-18)
 
 
