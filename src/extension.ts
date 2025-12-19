@@ -7,6 +7,7 @@ import { PreviewManager } from './previewManager';
 import { SnippetHoverProvider } from './snippetHoverProvider';
 import { DiagnosticManager } from './diagnosticManager';
 import { setLogger } from './mkdocsConfigReader';
+import { AsyncSerializer } from './asyncSerializer';
 
 /**
  * Activates the mkdocs-snippet-lens extension
@@ -44,18 +45,23 @@ export async function activate(context: vscode.ExtensionContext) {
     false  // ignoreDeleteEvents
   );
 
+  // Create serializer to prevent race conditions when mkdocs.yml changes rapidly
+  const configReloadSerializer = new AsyncSerializer();
+
   // Reload config and refresh diagnostics when mkdocs config changes
   const reloadMkdocsConfig = async () => {
-    if (workspaceFolders && workspaceFolders.length > 0) {
-      await diagnosticManager.loadMkdocsConfig(workspaceFolders[0].uri.fsPath);
+    await configReloadSerializer.execute(async () => {
+      if (workspaceFolders && workspaceFolders.length > 0) {
+        await diagnosticManager.loadMkdocsConfig(workspaceFolders[0].uri.fsPath);
 
-      // Refresh diagnostics for all open markdown files
-      vscode.window.visibleTextEditors
-        .filter(editor => editor.document.languageId === 'markdown')
-        .forEach(editor => {
-          diagnosticManager.updateDiagnostics(editor.document);
-        });
-    }
+        // Refresh diagnostics for all open markdown files
+        vscode.window.visibleTextEditors
+          .filter(editor => editor.document.languageId === 'markdown')
+          .forEach(editor => {
+            diagnosticManager.updateDiagnostics(editor.document);
+          });
+      }
+    });
   };
 
   mkdocsWatcher.onDidCreate(reloadMkdocsConfig);
