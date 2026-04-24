@@ -40,7 +40,7 @@ describe('AsyncSerializer', () => {
     assert.strictEqual(maxInFlight, 1, 'At most one execution should be in flight at a time');
   });
 
-  it('should coalesce multiple pending calls into single execution', async () => {
+  it('should coalesce multiple pending calls into a single additional execution', async () => {
     const serializer = new AsyncSerializer();
     let executionCount = 0;
 

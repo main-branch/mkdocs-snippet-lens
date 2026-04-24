@@ -35,7 +35,9 @@ export class AsyncSerializer {
    * @returns A promise that resolves when this call has been acknowledged
    *          (either executed immediately or queued for a coalesced re-run). Awaiting
    *          this promise does not guarantee a distinct execution of {@link fn} for
-   *          this call; coalesced calls share execution cycles.
+   *          this call; coalesced calls share execution cycles. The promise rejects
+   *          if any execution performed during this cycle throws, and rethrows the
+   *          first error encountered after pending executions have been processed.
    */
   async execute(fn: () => Promise<void>): Promise<void> {
     // If already executing, store latest fn for the coalesced re-run and return immediately

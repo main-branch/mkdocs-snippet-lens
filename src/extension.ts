@@ -50,19 +50,25 @@ export async function activate(context: vscode.ExtensionContext) {
 
   // Reload config and refresh diagnostics when mkdocs config changes
   const reloadMkdocsConfig = async () => {
-    await configReloadSerializer.execute(async () => {
-      const currentFolders = vscode.workspace.workspaceFolders;
-      if (currentFolders && currentFolders.length > 0) {
-        await diagnosticManager.loadMkdocsConfig(currentFolders[0].uri.fsPath);
+    try {
+      await configReloadSerializer.execute(async () => {
+        const currentFolders = vscode.workspace.workspaceFolders;
+        if (currentFolders && currentFolders.length > 0) {
+          await diagnosticManager.loadMkdocsConfig(currentFolders[0].uri.fsPath);
 
-        // Refresh diagnostics for all open markdown files
-        vscode.window.visibleTextEditors
-          .filter(editor => editor.document.languageId === 'markdown')
-          .forEach(editor => {
-            diagnosticManager.updateDiagnostics(editor.document);
-          });
-      }
-    });
+          // Refresh diagnostics for all open markdown files
+          vscode.window.visibleTextEditors
+            .filter(editor => editor.document.languageId === 'markdown')
+            .forEach(editor => {
+              diagnosticManager.updateDiagnostics(editor.document);
+            });
+        }
+      });
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      outputChannel.appendLine(`Failed to reload MkDocs configuration: ${errorMessage}`);
+      void vscode.window.showErrorMessage('Failed to reload MkDocs configuration. See output for details.');
+    }
   };
 
   mkdocsWatcher.onDidCreate(reloadMkdocsConfig);
