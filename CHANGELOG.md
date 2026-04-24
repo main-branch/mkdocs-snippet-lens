@@ -4,6 +4,28 @@ All notable changes to the "mkdocs-snippet-lens" extension will be documented in
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [0.2.1](https://github.com/main-branch/mkdocs-snippet-lens/compare/v0.2.0...v0.2.1) (2026-04-24)
+
+
+### Bug Fixes
+
+* Address Copilot review comments (round 2) ([025f004](https://github.com/main-branch/mkdocs-snippet-lens/commit/025f004bf812f666f81ab7f616496ca68514c112))
+* Address Copilot review comments (round 3) ([6e78204](https://github.com/main-branch/mkdocs-snippet-lens/commit/6e7820415c944b1561aa37d435d3cbb7ea50bfe3))
+* Address Copilot review comments (round 4) ([766a20e](https://github.com/main-branch/mkdocs-snippet-lens/commit/766a20e488e70532d43e1f51663fb48cffed3387))
+* Address Copilot review comments (round 5) ([f0bc616](https://github.com/main-branch/mkdocs-snippet-lens/commit/f0bc616fb997df0bde063e618f88e802fd51b1c0))
+* Prevent race conditions in mkdocs.yml file watcher callback ([049e464](https://github.com/main-branch/mkdocs-snippet-lens/commit/049e46490b9b2d875ace2f1a8666fbc2fd5acc4f)), closes [#48](https://github.com/main-branch/mkdocs-snippet-lens/issues/48)
+
+
+### Documentation
+
+* Update IMPLEMENTATION.md with v0.3.0 detailed plan and GitHub issue cross-references ([095cc0d](https://github.com/main-branch/mkdocs-snippet-lens/commit/095cc0d0dd3f23ed41c9c9dc520093577b5d7a96))
+* Update RISKS.md with GitHub issue links and post-v0.2.0 status ([73ed0a1](https://github.com/main-branch/mkdocs-snippet-lens/commit/73ed0a1e72500cd341992982f55691244b31364e))
+
+
+### Build System
+
+* **dependencies:** Update dependencies for all GitHub Actions workflows ([97b2921](https://github.com/main-branch/mkdocs-snippet-lens/commit/97b2921351d09389c6ff927644999b2824028c32))
+
 ## [0.2.0](https://github.com/main-branch/mkdocs-snippet-lens/compare/v0.1.1...v0.2.0) (2025-12-18)
 
 
