@@ -15,7 +15,7 @@ jobs:
 
     steps:
       - name: Secure runner
-        uses: step-security/harden-runner@v2.11.1
+        uses: step-security/harden-runner@v2
         with:
           disable-sudo: true
           egress-policy: block
