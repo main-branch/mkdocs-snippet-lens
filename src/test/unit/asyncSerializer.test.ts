@@ -11,53 +11,47 @@ import { AsyncSerializer } from '../../asyncSerializer';
 describe('AsyncSerializer', () => {
   it('should prevent concurrent executions', async () => {
     const serializer = new AsyncSerializer();
-    const executions: Array<{ id: number; start: number; end: number }> = [];
-    let counter = 0;
+    let inFlight = 0;
+    let maxInFlight = 0;
 
-    const slowOperation = async () => {
-      const id = counter++;
-      const startTime = Date.now();
-      executions.push({ id, start: startTime, end: -1 });
+    // A manually controlled barrier holds the operation in-flight until released,
+    // making this test deterministic and free of real-time delays.
+    let release!: () => void;
+    const barrier = new Promise<void>(resolve => { release = resolve; });
 
-      // Simulate async operation with artificial delay
-      await new Promise(resolve => setTimeout(resolve, 50));
-
-      const endTime = Date.now();
-      const execution = executions.find(e => e.id === id);
-      if (execution) {
-        execution.end = endTime;
-      }
+    const operation = async () => {
+      inFlight++;
+      if (inFlight > maxInFlight) { maxInFlight = inFlight; }
+      await barrier;
+      inFlight--;
     };
 
-    // Fire three operations rapidly
+    // Fire three operations; first executes immediately, the rest are coalesced
     const promises = [
-      serializer.execute(slowOperation),
-      serializer.execute(slowOperation),
-      serializer.execute(slowOperation),
+      serializer.execute(operation),
+      serializer.execute(operation),
+      serializer.execute(operation),
     ];
 
+    // Release the barrier so all executions can complete
+    release();
     await Promise.all(promises);
 
-    // Verify no overlaps occurred
-    // Sort by start time to ensure we check in correct order
-    const sorted = executions.sort((a, b) => a.start - b.start);
-
-    for (let i = 0; i < sorted.length - 1; i++) {
-      assert.ok(
-        sorted[i].end <= sorted[i + 1].start,
-        `Execution ${sorted[i].id} (ended at ${sorted[i].end}) overlapped with ` +
-        `execution ${sorted[i + 1].id} (started at ${sorted[i + 1].start})`
-      );
-    }
+    assert.strictEqual(maxInFlight, 1, 'At most one execution should be in flight at a time');
   });
 
   it('should coalesce multiple pending calls into single execution', async () => {
     const serializer = new AsyncSerializer();
     let executionCount = 0;
 
+    // A manually controlled barrier holds the first execution in-flight while
+    // the remaining calls are dispatched synchronously, ensuring coalescing occurs.
+    let release!: () => void;
+    const barrier = new Promise<void>(resolve => { release = resolve; });
+
     const countingOperation = async () => {
       executionCount++;
-      await new Promise(resolve => setTimeout(resolve, 50));
+      await barrier;
     };
 
     // Fire five operations rapidly while first is running
@@ -69,6 +63,7 @@ describe('AsyncSerializer', () => {
       serializer.execute(countingOperation),
     ];
 
+    release();
     await Promise.all(promises);
 
     // With coalescing of synchronously scheduled calls, this should be deterministic:
@@ -120,18 +115,25 @@ describe('AsyncSerializer', () => {
     const serializer = new AsyncSerializer();
     let executionCount = 0;
 
+    // A manually controlled barrier holds the first execution in-flight so calls
+    // B and C are coalesced before A finishes (and throws).
+    let release!: () => void;
+    const barrier = new Promise<void>(resolve => { release = resolve; });
+
     const operation = async () => {
       const id = ++executionCount;
-      await new Promise(resolve => setTimeout(resolve, 50));
+      await barrier;
       if (id === 1) {
         throw new Error('First execution failed');
       }
     };
 
-    // Start call A (will error after delay), then dispatch B and C which get coalesced
+    // Start call A (will error after barrier), then dispatch B and C which get coalesced
     const promiseA = serializer.execute(operation);
     const promiseB = serializer.execute(operation);
     const promiseC = serializer.execute(operation);
+
+    release();
 
     // A rejects; B and C already resolved immediately (coalesced)
     await promiseA.catch(() => {});
@@ -152,7 +154,7 @@ describe('AsyncSerializer', () => {
 
     const operation = async (id: number) => {
       executions.push(id);
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await Promise.resolve();
     };
 
     // First batch

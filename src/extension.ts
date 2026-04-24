@@ -51,8 +51,9 @@ export async function activate(context: vscode.ExtensionContext) {
   // Reload config and refresh diagnostics when mkdocs config changes
   const reloadMkdocsConfig = async () => {
     await configReloadSerializer.execute(async () => {
-      if (workspaceFolders && workspaceFolders.length > 0) {
-        await diagnosticManager.loadMkdocsConfig(workspaceFolders[0].uri.fsPath);
+      const currentFolders = vscode.workspace.workspaceFolders;
+      if (currentFolders && currentFolders.length > 0) {
+        await diagnosticManager.loadMkdocsConfig(currentFolders[0].uri.fsPath);
 
         // Refresh diagnostics for all open markdown files
         vscode.window.visibleTextEditors
