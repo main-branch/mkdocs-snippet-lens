@@ -19,18 +19,17 @@
  * ```
  */
 export class AsyncSerializer {
-  private isExecuting = false;
-  private hasPending = false;
+  private _isExecuting = false;
+  private _pendingFn: (() => Promise<void>) | undefined = undefined;
 
   /**
    * Execute an async operation, ensuring it doesn't overlap with previous calls.
    *
-   * If an execution is already in progress, this call marks that another execution
-   * is needed and returns immediately. The operation will run again after the current
-   * execution completes.
-   *
-   * Multiple calls during execution are coalesced - the operation runs at most once
-   * more after the current execution, regardless of how many times execute() was called.
+   * If an execution is already in progress, this call stores {@link fn} as the next
+   * operation to run and returns immediately. When the current execution finishes, the
+   * most recently stored pending function will be executed. Multiple calls during
+   * execution are coalesced — only the last-queued function runs for the coalesced
+   * re-execution.
    *
    * @param fn The async operation to execute
    * @returns A promise that resolves when this call has been acknowledged
@@ -39,30 +38,33 @@ export class AsyncSerializer {
    *          this call; coalesced calls share execution cycles.
    */
   async execute(fn: () => Promise<void>): Promise<void> {
-    // If already executing, mark that we need another run and return immediately
-    if (this.isExecuting) {
-      this.hasPending = true;
+    // If already executing, store latest fn for the coalesced re-run and return immediately
+    if (this._isExecuting) {
+      this._pendingFn = fn;
       return;
     }
 
-    this.isExecuting = true;
+    this._isExecuting = true;
     let firstError: unknown | undefined;
     try {
-      // Keep executing while new requests come in
-      do {
-        // Clear pending flag before starting - new calls during this execution will set it again
-        this.hasPending = false;
+      // Keep executing while new requests come in, always using the latest queued fn
+      let nextFn: (() => Promise<void>) | undefined = fn;
+      while (nextFn !== undefined) {
+        const toRun = nextFn;
+        this._pendingFn = undefined;
         try {
-          await fn();
+          await toRun();
         } catch (error) {
           // Record the first error but continue processing pending executions
           if (firstError === undefined) {
             firstError = error;
           }
         }
-      } while (this.hasPending);
+        nextFn = this._pendingFn;
+      }
     } finally {
-      this.isExecuting = false;
+      this._isExecuting = false;
+      this._pendingFn = undefined;
     }
 
     if (firstError !== undefined) {
