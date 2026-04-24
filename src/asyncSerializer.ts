@@ -32,12 +32,16 @@ export class AsyncSerializer {
    * re-execution.
    *
    * @param fn The async operation to execute
-   * @returns A promise that resolves when this call has been acknowledged
-   *          (either executed immediately or queued for a coalesced re-run). Awaiting
-   *          this promise does not guarantee a distinct execution of {@link fn} for
-   *          this call; coalesced calls share execution cycles. The promise rejects
-   *          if any execution performed during this cycle throws, and rethrows the
-   *          first error encountered after pending executions have been processed.
+   * @returns A promise whose meaning depends on whether this call starts a new
+   *          execution cycle. If no execution is in progress, the promise resolves
+   *          after the current execution cycle completes, including any coalesced
+   *          re-execution triggered while it is running, and rejects if the final
+   *          execution of that cycle fails. If an execution is already in progress,
+   *          the promise resolves once this call has been acknowledged and {@link fn}
+   *          has been stored as the latest pending operation; in that case, the
+   *          returned promise does not observe the eventual success or failure of the
+   *          running/coalesced execution and does not guarantee a distinct execution
+   *          of {@link fn}.
    */
   async execute(fn: () => Promise<void>): Promise<void> {
     // If already executing, store latest fn for the coalesced re-run and return immediately
@@ -47,7 +51,7 @@ export class AsyncSerializer {
     }
 
     this._isExecuting = true;
-    let firstError: unknown | undefined;
+    let lastError: unknown | undefined;
     try {
       // Keep executing while new requests come in, always using the latest queued fn
       let nextFn: (() => Promise<void>) | undefined = fn;
@@ -56,11 +60,9 @@ export class AsyncSerializer {
         this._pendingFn = undefined;
         try {
           await toRun();
+          lastError = undefined; // Clear error if a subsequent execution succeeds
         } catch (error) {
-          // Record the first error but continue processing pending executions
-          if (firstError === undefined) {
-            firstError = error;
-          }
+          lastError = error;
         }
         nextFn = this._pendingFn;
       }
@@ -69,8 +71,8 @@ export class AsyncSerializer {
       this._pendingFn = undefined;
     }
 
-    if (firstError !== undefined) {
-      throw firstError;
+    if (lastError !== undefined) {
+      throw lastError;
     }
   }
 }

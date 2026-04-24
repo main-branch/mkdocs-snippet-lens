@@ -128,15 +128,17 @@ describe('AsyncSerializer', () => {
       }
     };
 
-    // Start call A (will error after barrier), then dispatch B and C which get coalesced
+    // Start call A (will error partway through but coalesced re-run succeeds),
+    // then dispatch B and C which get coalesced
     const promiseA = serializer.execute(operation);
     const promiseB = serializer.execute(operation);
     const promiseC = serializer.execute(operation);
 
     release();
 
-    // A rejects; B and C already resolved immediately (coalesced)
-    await promiseA.catch(() => {});
+    // promiseA resolves (not rejects) because the coalesced re-run succeeded,
+    // clearing the error from the first execution
+    await promiseA;
     await promiseB;
     await promiseC;
 
