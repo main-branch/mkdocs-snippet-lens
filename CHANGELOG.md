@@ -4,6 +4,21 @@ All notable changes to the "mkdocs-snippet-lens" extension will be documented in
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [0.2.2](https://github.com/main-branch/mkdocs-snippet-lens/compare/v0.2.1...v0.2.2) (2026-10-14)
+
+
+### Build System
+
+* **dependencies:** Upgrade @vscode/test-electron to 3 for vs code 1.110+ ([206181f](https://github.com/main-branch/mkdocs-snippet-lens/commit/206181f9a93ae1a17f838ed3d5a38487c254b44c))
+* **dependencies:** Upgrade c8 to 12 so unit tests run on node 26 ([64b377e](https://github.com/main-branch/mkdocs-snippet-lens/commit/64b377ee583445be57ed8211c0c67f9cce9d1fa5))
+
+
+### Continuous Integration
+
+* Build the extension once when publishing a release ([9b6685e](https://github.com/main-branch/mkdocs-snippet-lens/commit/9b6685eb93bb3a0a69fc9cb128f62c37a498e91d))
+* Publish the release vsix to the marketplace instead of repackaging ([fd8189d](https://github.com/main-branch/mkdocs-snippet-lens/commit/fd8189d45c104ed27209a68a5ff87fd90e514817))
+* Run workflows on node 26 ([7b01a5a](https://github.com/main-branch/mkdocs-snippet-lens/commit/7b01a5a9f5adac424017deeac548b0713d22aea5))
+
 ## [0.2.1](https://github.com/main-branch/mkdocs-snippet-lens/compare/v0.2.0...v0.2.1) (2026-04-24)
 
 
