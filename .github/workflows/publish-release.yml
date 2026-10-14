@@ -64,7 +64,7 @@ jobs:
       - name: Publish to VS Code Marketplace
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
-        run: vsce publish --pat "$VSCE_PAT"
+        run: vsce publish --packagePath *.vsix --pat "$VSCE_PAT"
 
       - name: Publish to Open VSX
         env:
