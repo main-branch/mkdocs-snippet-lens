@@ -32,7 +32,7 @@ contributions can be merged smoothly.
 
 Here are the most important guidelines:
 
-- **Prerequisites**: You must have Node.js (>= 20) and npm installed.
+- **Prerequisites**: You must have Node.js (>= 22.12.0) and npm installed.
 - **One-Time Setup**: Run `npm ci` after cloning to install all development dependencies
   and Git hooks.
 - **Conventional Commits**: All commit messages must follow the Conventional Commits
@@ -79,7 +79,7 @@ dependency management and tooling.
 
 You must have the following tools installed on your local machine:
 
-- **Node.js**: Version 20.0.0 or newer.
+- **Node.js**: Version 22.12.0 or newer.
 - **npm**: This is included with Node.js.
 - **Visual Studio Code**: For testing the extension.
 
